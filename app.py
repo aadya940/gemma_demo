@@ -6,6 +6,13 @@ import subprocess
 from huggingface_hub import login
 
 def main():
+    # Set page config must be the first Streamlit command
+    st.set_page_config(
+        page_title="Gemma Chat",
+        page_icon="🤖",
+        layout="wide"
+    )
+    
     st.title("Gemma 2B Chat Interface")
     
     # Login section

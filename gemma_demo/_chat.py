@@ -79,13 +79,7 @@ class StreamlitChat:
             return f"Failed to load model: {str(e)}"
     
     def render(self):
-        """Render the Streamlit interface"""
-        st.set_page_config(
-            page_title="Gemma Chat",
-            page_icon="🤖",
-            layout="wide"
-        )
-        
+        """Render the Streamlit interface"""        
         # Custom CSS
         st.markdown("""
         <style>
@@ -228,4 +222,3 @@ class StreamlitChat:
             with st.spinner(f"Loading {model_dropdown}..."):
                 result = self.change_model(model_dropdown)
                 st.toast(result)
-
