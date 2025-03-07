@@ -1,8 +1,43 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 from typing import Dict, Optional
+import streamlit as st
 
 torch.classes.__path__ = [] # add this line to manually set it to empty. 
+
+@st.cache_resource
+def load_cached_model(name: str, device_map: str = "cpu"):
+    """
+    Cached model loading function that persists the model across reruns
+    """
+    tokenizer = AutoTokenizer.from_pretrained(name)
+    
+    model = AutoModelForCausalLM.from_pretrained(
+        name,
+        torch_dtype=torch.float32,
+        low_cpu_mem_usage=True,
+        device_map=device_map,
+        use_safetensors=True,
+        use_flash_attention_2=False,
+        use_cache=True,
+        load_in_8bit=True,
+    )
+    
+    pipe = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        device_map=device_map,
+        torch_dtype=torch.float32,
+        do_sample=True,
+        temperature=0.7,
+        max_new_tokens=512,
+        pad_token_id=tokenizer.eos_token_id,
+        eos_token_id=tokenizer.eos_token_id,
+        return_full_text=False
+    )
+    
+    return tokenizer, model, pipe
 
 class HuggingFaceGemmaModel:
     """
@@ -55,43 +90,13 @@ class HuggingFaceGemmaModel:
         
     def load_model(self, device_map: str = "cpu"):
         """
-        Load the model optimized for CPU-only inference
+        Load the model using cached resources
         
         Args:
             device_map: Device mapping strategy (should be "cpu" for CPU-only inference)
         """
-        # Load tokenizer and model
-        self.tokenizer = AutoTokenizer.from_pretrained(self.name)
-        
-        # Configure model for CPU inference
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.name,
-            torch_dtype=torch.float32,  # Use float32 for CPU
-            low_cpu_mem_usage=True,
-            device_map=device_map,
-            use_safetensors=True,
-            use_flash_attention_2=False,
-            # CPU optimization settings
-            use_cache=True,
-            load_in_8bit=False,  # Disable quantization for CPU
-        )
-        
-        # Create text generation pipeline optimized for CPU
-        self.pipeline = pipeline(
-            "text-generation",
-            model=self.model,
-            tokenizer=self.tokenizer,
-            device_map=device_map,
-            torch_dtype=torch.float32,  # Use float32 for CPU
-            # Default generation settings
-            do_sample=True,
-            temperature=0.7,
-            max_new_tokens=512,
-            pad_token_id=self.tokenizer.eos_token_id,
-            eos_token_id=self.tokenizer.eos_token_id,
-            return_full_text=False
-        )
-        
+        # Load cached model, tokenizer and pipeline
+        self.tokenizer, self.model, self.pipeline = load_cached_model(self.name, device_map)
         return self
     
     def generate_response(

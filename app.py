@@ -159,11 +159,6 @@ def main():
             </div>
             """, unsafe_allow_html=True)
             
-            # Show a preview of what the chat looks like
-            st.markdown("### Preview of Gemma AI Chat")
-            st.image("https://storage.googleapis.com/gweb-uniblog-publish-prod/images/image1_2.max-1000x1000.png", 
-                    caption="Example of Gemma AI capabilities")
-
 if __name__ == "__main__":
     # Check if the script is being run directly with Python
     # If so, launch Streamlit programmatically
