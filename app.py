@@ -62,8 +62,11 @@ if __name__ == "__main__":
         os.environ['STREAMLIT_RUN_APP'] = '1'
         # Get the current script path
         script_path = os.path.abspath(__file__)
-        # Launch streamlit run
-        cmd = [sys.executable, "-m", "streamlit", "run", script_path, "--server.headless", "true"]
+        # Launch streamlit run with port 7860 and headless mode
+        cmd = [sys.executable, "-m", "streamlit", "run", script_path, 
+               "--server.port", "7860",
+               "--server.address", "0.0.0.0",
+               "--server.headless", "true"]
         subprocess.run(cmd)
     else:
         # Normal Streamlit execution
