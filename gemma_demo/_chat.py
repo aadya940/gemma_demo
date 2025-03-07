@@ -110,6 +110,15 @@ class StreamlitChat:
                 padding: 20px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.05);
                 margin-bottom: 20px;
+                max-height: 800px;
+                overflow-y: auto;
+            }
+            
+            /* Message styling */
+            .stChatMessage {
+                background-color: transparent !important;
+                border: none !important;
+                padding: 1rem 0 !important;
             }
             
             /* User message styling */
@@ -122,8 +131,16 @@ class StreamlitChat:
                 background-color: #fbbc05 !important;
             }
             
+            /* Message content styling */
+            .stChatMessage > div {
+                background-color: #f8f9fa !important;
+                border-radius: 12px !important;
+                padding: 1rem !important;
+                margin: 0.5rem 0 !important;
+            }
+            
             /* Code block styling */
-            pre {
+            .stMarkdown pre {
                 background-color: #1e1e1e !important;
                 border-radius: 8px !important;
                 padding: 12px !important;
@@ -132,11 +149,30 @@ class StreamlitChat:
                 border: 1px solid #3e3e3e !important;
             }
             
-            code {
+            .stMarkdown code {
                 font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
                 font-size: 14px !important;
                 line-height: 1.5 !important;
+                color: #e6e6e6 !important;  /* Light gray text for code */
             }
+            
+            /* Inline code styling */
+            .stMarkdown p code {
+                background-color: #f0f0f0 !important;
+                color: #24292e !important;
+                padding: 2px 6px !important;
+                border-radius: 4px !important;
+            }
+            
+            /* Syntax highlighting for code blocks */
+            .stMarkdown pre code {
+                color: #e6e6e6 !important;  /* Base text color */
+            }
+            .stMarkdown pre code .keyword { color: #569cd6 !important; }  /* Keywords */
+            .stMarkdown pre code .string { color: #ce9178 !important; }   /* Strings */
+            .stMarkdown pre code .comment { color: #6a9955 !important; }  /* Comments */
+            .stMarkdown pre code .function { color: #dcdcaa !important; } /* Functions */
+            .stMarkdown pre code .number { color: #b5cea8 !important; }   /* Numbers */
             
             /* Task card styling */
             .task-card {
@@ -156,27 +192,32 @@ class StreamlitChat:
                 border-left: 4px solid #34A853;
             }
             
-            /* Button styling */
-            .primary-button {
-                background-color: #4285F4;
-                color: white;
-                padding: 8px 16px;
-                border-radius: 4px;
-                border: none;
-                cursor: pointer;
-                font-weight: 500;
-                transition: all 0.3s;
-            }
-            
-            .primary-button:hover {
-                background-color: #3367d6;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            }
-            
             /* Chat input styling */
             .stChatInputContainer {
                 padding-top: 1rem;
                 border-top: 1px solid #f0f0f0;
+                position: sticky;
+                bottom: 0;
+                background-color: white;
+            }
+            
+            /* Streamlit elements styling */
+            .stTextInput > div > div {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .stButton button {
+                width: 100%;
+                padding: 0.5rem;
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+            }
+            
+            .stButton button:hover {
+                background-color: #e9ecef;
+                border-color: #dee2e6;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -186,39 +227,38 @@ class StreamlitChat:
         
         # Main chat area
         with col1:
-            # Chat container
-            with st.container():
-                st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-                
-                # Display chat messages with avatars
-                for message in st.session_state.messages:
-                    if message["role"] == "user":
-                        with st.chat_message("user", avatar="👤"):
-                            st.markdown(message["content"])
-                    else:
-                        with st.chat_message("assistant", avatar="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/gemma_logo.max-600x600.png"):
-                            st.markdown(message["content"])
-                
-                st.markdown('</div>', unsafe_allow_html=True)
-                
-                # Chat input with placeholder based on selected task
-                task_placeholders = {
-                    "Question Answering": "Ask me anything...",
-                    "Text Generation": "Describe what you'd like me to write about...",
-                    "Code Completion": "Enter code or describe what you need..."
-                }
-                
-                current_task = list(self.tasks.keys())[0]  # Default
-                for task_name, task_id in self.tasks.items():
-                    if task_id == self.prompt_manager.task:
-                        current_task = task_name
-                        break
-                
-                placeholder_text = task_placeholders.get(current_task, "Type your message here...")
-                
-                # Chat input
-                if user_input := st.chat_input(placeholder_text):
-                    self.chat(user_input, current_task)
+            # Chat container with fixed height and scrolling
+            st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+            
+            # Display chat messages with avatars
+            for message in st.session_state.messages:
+                if message["role"] == "user":
+                    with st.chat_message("user", avatar="👤"):
+                        st.markdown(message["content"])
+                else:
+                    with st.chat_message("assistant", avatar="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/gemma_logo.max-600x600.png"):
+                        st.markdown(message["content"])
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Chat input (moved outside the scrollable container)
+            task_placeholders = {
+                "Question Answering": "Ask me anything...",
+                "Text Generation": "Describe what you'd like me to write about...",
+                "Code Completion": "Enter code or describe what you need..."
+            }
+            
+            current_task = list(self.tasks.keys())[0]  # Default
+            for task_name, task_id in self.tasks.items():
+                if task_id == self.prompt_manager.task:
+                    current_task = task_name
+                    break
+            
+            placeholder_text = task_placeholders.get(current_task, "Type your message here...")
+            
+            # Chat input
+            if user_input := st.chat_input(placeholder_text):
+                self.chat(user_input, current_task)
         
         # Sidebar with controls
         with col2:
