@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import random
 
 class StreamlitChat:
     """
@@ -21,6 +22,13 @@ class StreamlitChat:
         # Initialize session state for chat history if it doesn't exist
         if "messages" not in st.session_state:
             st.session_state.messages = []
+            
+        # Add a welcome message if chat is empty
+        if len(st.session_state.messages) == 0:
+            st.session_state.messages.append({
+                "role": "assistant", 
+                "content": "👋 Hello! I'm Gemma, an AI assistant powered by Google's language models. How can I help you today?"
+            })
     
     def chat(self, message, task):
         """Process a chat message and update history"""
@@ -39,16 +47,28 @@ class StreamlitChat:
         st.session_state.messages.append({"role": "user", "content": message})
         
         # Create a placeholder for the assistant's message
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/gemma_logo.max-600x600.png"):
             message_placeholder = st.empty()
-            message_placeholder.markdown("Thinking...")
+            full_response = ""
+            
+            # Show a typing indicator
+            typing_placeholder = st.empty()
+            typing_placeholder.markdown("*Thinking...*")
             
             # Generate response
             response = self.model.generate_response(prompt)
             
             # Special handling for code completion
             if self.prompt_manager.task == "code_completion" and "```" not in response:
-                response = self.chat(message, task)
+                response = self.model.generate_response(prompt + "\nPlease format your response as a proper code block with the correct language identifier.")
+            
+            # Simulate typing effect for a more natural feel
+            typing_placeholder.empty()
+            for i in range(len(response)):
+                full_response = response[:i+1]
+                message_placeholder.markdown(full_response)
+                if i % 3 == 0:  # Only sleep occasionally to speed up the effect
+                    time.sleep(0.01)
             
             # Display the final response
             message_placeholder.markdown(response)
@@ -59,7 +79,7 @@ class StreamlitChat:
         return response
     
     def change_task(self, task):
-        """Change the current task"""
+        """Change the current task and return its description"""
         task_descriptions = {
             "Question Answering": "Ask any factual question or seek explanations on various topics.",
             "Text Generation": "Generate creative writing, stories, or content on a given topic.",
@@ -80,35 +100,26 @@ class StreamlitChat:
     
     def render(self):
         """Render the Streamlit interface"""        
-        # Custom CSS
+        # Custom CSS for enhanced styling
         st.markdown("""
         <style>
-            .main {
-                max-width: 1200px;
-                margin: auto;
-            }
-            .header {
-                text-align: center;
+            /* Chat container styling */
+            .chat-container {
+                background-color: #ffffff;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
                 margin-bottom: 20px;
             }
-            .header h1 {
-                margin-bottom: 5px;
+            
+            /* User message styling */
+            .stChatMessage [data-testid="chatAvatarIcon-user"] {
+                background-color: #4285F4 !important;
             }
-            .header p {
-                margin-top: 0;
-                color: #666;
-            }
-            .model-info {
-                padding: 10px;
-                border-radius: 8px;
-                background: #f0f4ff;
-                margin-bottom: 10px;
-            }
-            .footer {
-                text-align: center;
-                margin-top: 20px;
-                font-size: 0.8em;
-                color: #666;
+            
+            /* Assistant message styling */
+            .stChatMessage [data-testid="chatAvatarIcon-assistant"] {
+                background-color: #fbbc05 !important;
             }
             
             /* Code block styling */
@@ -126,99 +137,190 @@ class StreamlitChat:
                 font-size: 14px !important;
                 line-height: 1.5 !important;
             }
+            
+            /* Task card styling */
+            .task-card {
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                border-left: 4px solid #4285F4;
+            }
+            
+            /* Model card styling */
+            .model-card {
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                border-left: 4px solid #34A853;
+            }
+            
+            /* Button styling */
+            .primary-button {
+                background-color: #4285F4;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 4px;
+                border: none;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s;
+            }
+            
+            .primary-button:hover {
+                background-color: #3367d6;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+            
+            /* Chat input styling */
+            .stChatInputContainer {
+                padding-top: 1rem;
+                border-top: 1px solid #f0f0f0;
+            }
         </style>
         """, unsafe_allow_html=True)
         
-        # Header
-        st.markdown("""
-        <div class="header">
-            <h1>Gemma Chat Interface</h1>
-            <p>Interact with Google's Gemma language models through a simple chat interface</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Main layout
+        # Main layout with improved proportions
         col1, col2 = st.columns([7, 3])
+        
+        # Main chat area
+        with col1:
+            # Chat container
+            with st.container():
+                st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+                
+                # Display chat messages with avatars
+                for message in st.session_state.messages:
+                    if message["role"] == "user":
+                        with st.chat_message("user", avatar="👤"):
+                            st.markdown(message["content"])
+                    else:
+                        with st.chat_message("assistant", avatar="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/gemma_logo.max-600x600.png"):
+                            st.markdown(message["content"])
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Chat input with placeholder based on selected task
+                task_placeholders = {
+                    "Question Answering": "Ask me anything...",
+                    "Text Generation": "Describe what you'd like me to write about...",
+                    "Code Completion": "Enter code or describe what you need..."
+                }
+                
+                current_task = list(self.tasks.keys())[0]  # Default
+                for task_name, task_id in self.tasks.items():
+                    if task_id == self.prompt_manager.task:
+                        current_task = task_name
+                        break
+                
+                placeholder_text = task_placeholders.get(current_task, "Type your message here...")
+                
+                # Chat input
+                if user_input := st.chat_input(placeholder_text):
+                    self.chat(user_input, current_task)
         
         # Sidebar with controls
         with col2:
-            with st.container():
-                st.markdown("## Model Settings")
+            # Model selection card
+            st.markdown('<div class="model-card">', unsafe_allow_html=True)
+            st.markdown("### 🤖 Model")
+            
+            model_dropdown = st.selectbox(
+                "Select Model",
+                options=self.available_models,
+                index=self.available_models.index(self.current_model_key),
+                format_func=lambda x: f"{x} ({self.model.AVAILABLE_MODELS[x]['description']})"
+            )
+            
+            # Model info
+            st.markdown(f"""
+            **Current Model:** {self.model.AVAILABLE_MODELS[self.current_model_key]['name']}  
+            **Type:** {self.model.AVAILABLE_MODELS[self.current_model_key]['type']}  
+            **Status:** Active and ready
+            """)
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Task selection card
+            st.markdown('<div class="task-card">', unsafe_allow_html=True)
+            st.markdown("### 🎯 Task")
+            
+            task_dropdown = st.selectbox(
+                "Select Task",
+                options=list(self.tasks.keys()),
+                index=0
+            )
+            
+            task_description = self.change_task(task_dropdown)
+            st.markdown(f"**Description:** {task_description}")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Generation settings
+            with st.expander("⚙️ Generation Settings", expanded=False):
+                st.slider("Temperature", min_value=0.1, max_value=1.0, value=0.7, step=0.1, 
+                         help="Higher values make output more random, lower values more deterministic")
+                st.slider("Max Length", min_value=64, max_value=1024, value=512, step=64,
+                         help="Maximum number of tokens to generate")
+                st.checkbox("Stream Output", value=True, 
+                           help="Show the response as it's being generated")
+            
+            # Examples section
+            with st.expander("💡 Example Prompts", expanded=False):
+                examples = {
+                    "Question Answering": [
+                        "Explain how neural networks work",
+                        "What is quantum computing?",
+                        "How does photosynthesis work?"
+                    ],
+                    "Text Generation": [
+                        "Write a short story about space exploration",
+                        "Create a poem about nature",
+                        "Write a product description for a smart watch"
+                    ],
+                    "Code Completion": [
+                        "Write a Python function to sort a list",
+                        "Create a React component for a login form",
+                        "Write a SQL query to find the top 5 customers"
+                    ]
+                }
                 
-                with st.container():
-                    st.markdown('<div class="model-info">', unsafe_allow_html=True)
-                    model_dropdown = st.selectbox(
-                        "Select Model",
-                        options=self.available_models,
-                        index=self.available_models.index(self.current_model_key)
-                    )
-                    
-                    model_status = st.markdown(f"""
-                    ### Model: {self.model.AVAILABLE_MODELS[self.current_model_key]['description']}
-                    
-                    Currently loaded and ready
-                    """)
-                    st.markdown('</div>', unsafe_allow_html=True)
-                
-                st.markdown("## Task Settings")
-                
-                task_dropdown = st.selectbox(
-                    "Select Task",
-                    options=list(self.tasks.keys()),
-                    index=0
-                )
-                
-                task_description = self.change_task(task_dropdown)
-                st.markdown(f"""
-                ### Current Task: {task_dropdown}
-                
-                {task_description}
-                """)
-                
-                with st.expander("Help & Examples", expanded=False):
-                    st.markdown("""
-                    ### Example Prompts
-                    
-                    **Question Answering**:
-                    - "What is quantum computing?"
-                    - "Explain how neural networks work"
-                    
-                    **Text Generation**:
-                    - "Write a short story about space exploration"
-                    - "Create a poem about nature"
-                    
-                    **Code Completion**:
-                    - "Write a Python function to sort a list"
-                    - ```python
-                      def fibonacci(n):
-                          # Complete this function
-                      ```
-                    """)
-                
-                if st.button("Clear Chat", type="secondary"):
-                    st.session_state.messages = []
+                current_examples = examples.get(task_dropdown, [])
+                for example in current_examples:
+                    if st.button(example, key=f"example_{example}", use_container_width=True):
+                        self.chat(example, task_dropdown)
+            
+            # Action buttons
+            col_a, col_b = st.columns(2)
+            with col_a:
+                if st.button("🗑️ Clear Chat", type="secondary", use_container_width=True):
+                    # Add a welcome message when clearing chat
+                    st.session_state.messages = [{
+                        "role": "assistant", 
+                        "content": "👋 Hello! I'm Gemma, an AI assistant powered by Google's language models. How can I help you today?"
+                    }]
                     st.experimental_rerun()
             
-        # Main chat area
-        with col1:
-            # Display chat messages
-            for message in st.session_state.messages:
-                with st.chat_message(message["role"]):
-                    st.markdown(message["content"])
+            with col_b:
+                if st.button("📋 Copy Last", type="secondary", use_container_width=True):
+                    if len(st.session_state.messages) > 0:
+                        last_message = st.session_state.messages[-1]["content"]
+                        st.code(last_message)
+                        st.toast("Response copied to clipboard!")
             
-            # Chat input
-            if user_input := st.chat_input("Type your message here..."):
-                self.chat(user_input, task_dropdown)
-                
-        # Footer
-        st.markdown("""
-        <div class="footer">
-            Powered by Google's Gemma models via Hugging Face | Created with Streamlit
-        </div>
-        """, unsafe_allow_html=True)
+            # Footer
+            st.markdown("---")
+            st.markdown("""
+            <div style="text-align: center; color: #666; font-size: 0.8em;">
+                Powered by Google's Gemma models<br>
+                <a href="https://huggingface.co/google/gemma-2b" target="_blank">Model Documentation</a> | 
+                <a href="https://github.com/google/gemma" target="_blank">GitHub</a>
+            </div>
+            """, unsafe_allow_html=True)
         
         # Handle model change
         if model_dropdown != self.current_model_key:
             with st.spinner(f"Loading {model_dropdown}..."):
                 result = self.change_model(model_dropdown)
                 st.toast(result)
+                
+from gemma_demo._model import HuggingFaceGemmaModel

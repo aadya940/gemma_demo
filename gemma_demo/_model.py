@@ -2,6 +2,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 from typing import Dict, Optional
 
+torch.classes.__path__ = [] # add this line to manually set it to empty. 
+
 class HuggingFaceGemmaModel:
     """
     A class for the Hugging Face Gemma model. Handles model selection, loading, and inference.
