@@ -3,7 +3,7 @@ title: Gemma Chat Interface
 emoji: 🤖
 colorFrom: indigo
 colorTo: blue
-sdk: gradio
+sdk: streamlit
 sdk_version: 4.0.0
 python_version: 3.12
 app_file: app.py
@@ -28,7 +28,7 @@ A lightweight chat interface for interacting with Google's Gemma language models
 
 ## Features
 
-- 💬 **Interactive Chat Interface** built with Gradio
+- 💬 **Interactive Chat Interface** built with Streamlit
 - 🔄 **Multiple Task Modes**:
   - Question Answering
   - Text Generation
@@ -81,7 +81,7 @@ python app.py
 gemma_demo/
 ├── __init__.py    # Package initialization
 ├── __main__.py    # Entry point
-├── _chat.py       # Gradio interface
+├── _chat.py       # Streamlit interface
 ├── _model.py      # Gemma model wrapper
 └── _prompts.py    # Prompt templates
 ```
