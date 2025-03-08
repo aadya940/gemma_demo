@@ -80,10 +80,10 @@ python app.py
 ```
 gemma_demo/
 ├── __init__.py    # Package initialization
-├── __main__.py    # Entry point
 ├── _chat.py       # Streamlit interface
 ├── _model.py      # Gemma model wrapper
 └── _prompts.py    # Prompt templates
+app.py             # Entry Point
 ```
 
 ## Requirements
