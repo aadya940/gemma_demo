@@ -24,7 +24,7 @@ short_description: A chat interface for Google's Gemma models.
 
 # Gemma Demo
 
-A lightweight chat interface for interacting with Google's Gemma language models via Hugging Face.
+A lightweight chat interface for interacting with Google's Gemma language models via Hugging Face using Streamlit.
 
 ## Features
 
@@ -53,15 +53,14 @@ cd gemma_demo
 # Install dependencies
 pip install -r requirements.txt
 pip install .
-
-# Log in to Hugging Face
-huggingface-cli login
 ```
 
 ### Running the Demo
 
+Go to the directory containing `app.py`.
+
 ```bash
-python -m gemma_demo
+python app.py
 ```
 
 ## Usage Guide
@@ -91,7 +90,7 @@ gemma_demo/
 
 - transformers >= 4.35.0
 - torch >= 2.0.0
-- gradio >= 4.0.0
+- streamlit
 - huggingface_hub >= 0.19.0
 - markdown >= 3.4.0
 
