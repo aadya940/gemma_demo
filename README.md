@@ -40,7 +40,7 @@ A lightweight chat interface for interacting with Google's Gemma language models
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.12
 - Hugging Face account with Gemma model access
 
 ### Installation
