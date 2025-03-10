@@ -97,8 +97,8 @@ def main():
 if __name__ == "__main__":
     # Check if running directly with python
     if len(sys.argv) == 1:
-        # If running with 'python app.py', launch streamlit on port 7860
-        os.system(f"streamlit run {__file__} --server.port 7860")
+        # If running with 'python app.py', launch streamlit on port 8501
+        os.system(f"streamlit run {__file__} --server.port 8501")
     else:
         # If already running with streamlit, execute the main function
         main()
