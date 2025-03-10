@@ -8,6 +8,7 @@ import streamlit as st
 from gemmademo import HuggingFaceGemmaModel, StreamlitChat, PromptManager, huggingface_login
 import os
 import sys
+import subprocess
 
 def main():
     # Page configuration
@@ -95,10 +96,18 @@ def main():
         st.info("Please login with your Hugging Face token in the sidebar to start chatting.")
 
 if __name__ == "__main__":
-    # Check if running directly with python
-    if len(sys.argv) == 1:
-        # If running with 'python app.py', launch streamlit on port 8501
-        os.system(f"streamlit run {__file__} --server.port 8501")
+    # Check if the script is being run directly with Python
+    # If so, launch Streamlit programmatically
+    if not os.environ.get('STREAMLIT_RUN_APP'):
+        os.environ['STREAMLIT_RUN_APP'] = '1'
+        # Get the current script path
+        script_path = os.path.abspath(__file__)
+        # Launch streamlit run with port 7860 and headless mode
+        cmd = [sys.executable, "-m", "streamlit", "run", script_path, 
+               "--server.port", "7860",
+               "--server.address", "0.0.0.0",
+               "--server.headless", "true"]
+        subprocess.run(cmd)
     else:
-        # If already running with streamlit, execute the main function
+        # Normal Streamlit execution
         main()

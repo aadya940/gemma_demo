@@ -1,13 +1,24 @@
 ---
-title: Gemma Chat Demo
+title: Gemma Chat Interface
 emoji: 🤖
-colorFrom: blue
-colorTo: purple
-sdk: streamlit
-sdk_version: 1.25.0
+colorFrom: indigo
+colorTo: blue
+sdk: gradio
+sdk_version: 4.0.0
+python_version: 3.12
 app_file: app.py
 pinned: false
-hardware: true
+models:
+  - google/gemma-2b
+  - google/gemma-2b-it
+  - google/gemma-7b
+  - google/gemma-7b-it
+tags:
+  - gemma
+  - chat
+  - language-model
+  - code-generation
+short_description: A chat interface for Google's Gemma models.
 ---
 
 # Gemma Chat Demo
