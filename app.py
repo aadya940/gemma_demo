@@ -95,7 +95,10 @@ def main():
         st.info("Please login with your Hugging Face token in the sidebar to start chatting.")
 
 if __name__ == "__main__":
+    # Check if running directly with python
     if len(sys.argv) == 1:
-        os.system(f"streamlit run {__file__}")
+        # If running with 'python app.py', launch streamlit on port 7860
+        os.system(f"streamlit run {__file__} --server.port 7860")
     else:
+        # If already running with streamlit, execute the main function
         main()
