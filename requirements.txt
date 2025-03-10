@@ -7,3 +7,5 @@ bitsandbytes>=0.41.0
 safetensors>=0.4.0
 sentencepiece>=0.1.99
 protobuf>=4.25.0
+intel_extension_for_pytorch 
+https://github.com/bitsandbytes-foundation/bitsandbytes/releases/download/continuous-release_multi-backend-refactor/bitsandbytes-0.44.1.dev0-py3-none-manylinux_2_24_x86_64.whl
