@@ -41,7 +41,7 @@ def main():
             st.success("Logged in to Hugging Face")
             if st.button("Logout"):
                 st.session_state.authenticated = False
-                st.experimental_rerun()
+                st.rerun()
         
         # Model selection
         st.subheader("Model Selection")
@@ -53,7 +53,7 @@ def main():
         )
         if selected_model != st.session_state.selected_model:
             st.session_state.selected_model = selected_model
-            st.experimental_rerun()
+            st.rerun()
         
         # Task selection
         st.subheader("Task Selection")
@@ -65,13 +65,13 @@ def main():
         )
         if selected_task != st.session_state.selected_task:
             st.session_state.selected_task = selected_task
-            st.experimental_rerun()
+            st.rerun()
         
         # Clear chat history button
         if st.button("Clear Chat History"):
             if "chat_instance" in st.session_state:
                 st.session_state.chat_instance.clear_history()
-            st.experimental_rerun()
+            st.rerun()
 
     # Main content area
     if st.session_state.authenticated:
@@ -96,18 +96,13 @@ def main():
         st.info("Please login with your Hugging Face token in the sidebar to start chatting.")
 
 if __name__ == "__main__":
-    # Check if the script is being run directly with Python
-    # If so, launch Streamlit programmatically
-    if not os.environ.get('STREAMLIT_RUN_APP'):
-        os.environ['STREAMLIT_RUN_APP'] = '1'
-        # Get the current script path
-        script_path = os.path.abspath(__file__)
-        # Launch streamlit run with port 7860 and headless mode
-        cmd = [sys.executable, "-m", "streamlit", "run", script_path, 
-               "--server.port", "7860",
-               "--server.address", "0.0.0.0",
-               "--server.headless", "true"]
-        subprocess.run(cmd)
+    # Check if running in Hugging Face Spaces
+    if "SPACE_ID" in os.environ:
+        # If in Spaces, just run the main function
+        main()
+    elif len(sys.argv) == 1:
+        # If running with 'python app.py' locally, launch streamlit on port 7860
+        os.system(f"streamlit run {__file__} --server.port 7860")
     else:
-        # Normal Streamlit execution
+        # If already running with streamlit, execute the main function
         main()
