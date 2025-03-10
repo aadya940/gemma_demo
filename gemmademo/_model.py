@@ -21,8 +21,6 @@ def load_model(name: str, device_map: str = "cpu"):
         use_cache=True,
         load_in_8bit=True,
     )
-
-    model = torch.compile(model, fullgraph=True)
     
     pipe = pipeline(
         "text-generation",
