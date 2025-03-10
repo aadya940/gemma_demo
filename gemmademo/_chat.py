@@ -30,12 +30,13 @@ class StreamlitChat:
         
         # React to user input
         if prompt := st.chat_input("What is up?"):
+            prompt = prompt.replace("\n", "  \n") # Only double spaced backslash is rendered in streamlit for newlines.
             with st.chat_message("User"):
                 st.markdown(prompt)
             st.session_state.messages.append({"role": "User", "content": prompt})
         
             prompt = self.prompt_manager.get_prompt(user_input=st.session_state.messages[-1]["content"])
-            response = self.model.generate_response(prompt)
+            response = self.model.generate_response(prompt).replace("\n", "  \n") # Only double spaced backslash is rendered in streamlit for newlines.
             with st.chat_message("Gemma"):
                 st.markdown(response)
             st.session_state.messages.append({"role": "Gemma", "content": response})

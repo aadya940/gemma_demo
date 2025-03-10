@@ -22,7 +22,7 @@ def load_model(name: str, device_map: str = "cpu"):
         load_in_8bit=True,
     )
 
-    model = torch.compile(model, fullgraph=True, mode="reduce-overhead")
+    model = torch.compile(model, fullgraph=True)
     
     pipe = pipeline(
         "text-generation",
