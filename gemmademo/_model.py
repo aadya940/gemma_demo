@@ -9,6 +9,9 @@ def load_model(name: str, device_map: str = "cpu"):
     """
     Model loading function that loads the model without caching
     """
+    import torch._dynamo
+    torch._dynamo.config.suppress_errors = True
+
     tokenizer = AutoTokenizer.from_pretrained(name)
     
     model = AutoModelForCausalLM.from_pretrained(
