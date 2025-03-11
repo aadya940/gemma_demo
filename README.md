@@ -25,6 +25,9 @@ short_description: A chat interface for Google's Gemma models.
 
 An interactive chat application powered by Google's Gemma models using Hugging Face and Streamlit.
 
+![image](https://github.com/user-attachments/assets/3e0c234d-95e7-4182-a003-133502a84e9b)
+
+
 ## Features
 
 - 🔐 Hugging Face authentication for accessing Gemma models
