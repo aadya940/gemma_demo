@@ -65,3 +65,7 @@ python app.py
 ```
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+
+## Limitations
+- CPU Implementation is very slow (a simple code completion can take around 10 minutes).
+- Limit Scope of Optimization (`torch.compile` takes several minutes to compile & recompiles frequently)
