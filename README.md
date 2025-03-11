@@ -3,7 +3,7 @@ title: Gemma Chat Interface
 emoji: 🤖
 colorFrom: indigo
 colorTo: blue
-sdk: gradio
+sdk: streamlit
 sdk_version: 4.0.0
 python_version: 3.12
 app_file: app.py
