@@ -1,5 +1,5 @@
 import streamlit as st
-from ._model import HuggingFaceGemmaModel
+from ._model import LlamaCppGemmaModel
 from ._prompts import PromptManager
 
 
@@ -8,13 +8,13 @@ class StreamlitChat:
     A class that handles the chat interface for the Gemma model.
 
     Features:
-    ✅ A Streamlit-based chatbot UI.
-    ✅ Maintains chat history across reruns.
-    ✅ Uses Gemma (Hugging Face) model for generating responses.
-    ✅ Formats user inputs before sending them to the model.
+    - A Streamlit-based chatbot UI.
+    -  Maintains chat history across reruns.
+    -  Uses Gemma (Hugging Face) model for generating responses.
+    -  Formats user inputs before sending them to the model.
     """
 
-    def __init__(self, model: HuggingFaceGemmaModel, prompt_manager: PromptManager):
+    def __init__(self, model: LlamaCppGemmaModel, prompt_manager: PromptManager):
         self.model = model
         self.prompt_manager = prompt_manager
 

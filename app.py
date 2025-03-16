@@ -6,7 +6,7 @@
 
 import streamlit as st
 from gemmademo import (
-    HuggingFaceGemmaModel,
+    LlamaCppGemmaModel,
     StreamlitChat,
     PromptManager,
     huggingface_login,
@@ -51,7 +51,7 @@ def main():
 
         # Model selection
         st.subheader("Model Selection")
-        model_options = list(HuggingFaceGemmaModel.AVAILABLE_MODELS.keys())
+        model_options = list(LlamaCppGemmaModel.AVAILABLE_MODELS.keys())
         selected_model = st.selectbox(
             "Select Gemma Model",
             model_options,
@@ -82,10 +82,10 @@ def main():
     # Main content area
     if st.session_state.authenticated:
         # Initialize model with the selected configuration
-        model_name = HuggingFaceGemmaModel.AVAILABLE_MODELS[
+        model_name = LlamaCppGemmaModel.AVAILABLE_MODELS[
             st.session_state.selected_model
         ]["name"]
-        model = HuggingFaceGemmaModel(name=model_name)
+        model = LlamaCppGemmaModel(name=model_name)
 
         # Load model (will use cached version if available)
         with st.spinner(f"Loading {model_name}..."):

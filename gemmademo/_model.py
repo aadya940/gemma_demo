@@ -1,191 +1,173 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-import torch
-from typing import Dict, Optional
+import os
+from typing import Dict
 import streamlit as st
-
-torch.classes.__path__ = (
-    []
-)  # add this line to manually set it to empty. If not done, this throws a warning.
+from llama_cpp import Llama
+from huggingface_hub import hf_hub_download
 
 
-def load_model(name: str, device_map: str = "cpu"):
+class LlamaCppGemmaModel:
     """
-    Model loading function that loads the model without caching
-    """
-    import torch._dynamo
+    A class for the Gemma model using llama.cpp. This class replicates the API of the original
+    HuggingFaceGemmaModel but uses llama.cpp for inference. It handles model selection, loading,
+    downloading (if necessary), and text generation.
 
-    torch._dynamo.config.suppress_errors = True  # Already in your code
-    torch._dynamo.config.cache_size_limit = 64  # Increase cache limit
-    torch._dynamo.config.force_inference_mode = True  # Reduce recompilations
-    torch._dynamo.config.suppress_errors = True
+    Available Models (ensure the repo_id and filename match the GGUF file on Hugging Face):
+    - gemma-2b: 2B parameters, base model
+    - gemma-2b-it: 2B parameters, instruction-tuned
+    - gemma-7b: 7B parameters, base model
+    - gemma-7b-it: 7B parameters, instruction-tuned
+    - gemma-7b-gguf: 7B parameters in GGUF format
 
-    tokenizer = AutoTokenizer.from_pretrained(name)
-
-    model = AutoModelForCausalLM.from_pretrained(
-        name,
-        torch_dtype=torch.bfloat16,
-        low_cpu_mem_usage=True,
-        device_map=device_map,
-        use_safetensors=True,
-        use_flash_attention_2=False,
-        use_cache=True,
-        load_in_8bit=True,
-    )
-
-    pipe = pipeline(
-        "text-generation",
-        model=model,
-        tokenizer=tokenizer,
-        device_map=device_map,
-        torch_dtype=torch.bfloat16,
-        do_sample=True,
-        temperature=0.7,
-        max_new_tokens=512,
-        pad_token_id=tokenizer.eos_token_id,
-        eos_token_id=tokenizer.eos_token_id,
-        return_full_text=False,
-    )
-
-    return tokenizer, model, pipe
-
-
-class HuggingFaceGemmaModel:
-    """
-    A class for the Hugging Face Gemma model. Handles model selection, loading, and inference.
-    Uses transformers pipeline for better text generation and formatting.
-
-    Example
-    -------
-    Select Gemma 2B, 7B etc.
-
-    Additional Information:
-    ----------------------
-    Complete Information: https://huggingface.co/google/gemma-2b
-
-    Available Models:
-    - google/gemma-2b (2B parameters, base)
-    - google/gemma-2b-it (2B parameters, instruction-tuned)
-    - google/gemma-7b (7B parameters, base)
-    - google/gemma-7b-it (7B parameters, instruction-tuned)
+    All models will be stored in the "models/" directory.
     """
 
     AVAILABLE_MODELS: Dict[str, Dict] = {
         "gemma-2b": {
-            "name": "google/gemma-2b",
+            "model_path": "models/gemma-2b.gguf",
+            "repo_id": "google/gemma-2b",  # update to the actual repo id
+            "filename": "gemma-2b.gguf",  # update to the actual filename
             "description": "2B parameters, base model",
             "type": "base",
         },
         "gemma-2b-it": {
-            "name": "google/gemma-2b-it",
+            "model_path": "models/gemma-2b-it.gguf",
+            "repo_id": "google/gemma-2b-it",  # update to the actual repo id
+            "filename": "gemma-2b-it.gguf",  # update to the actual filename
             "description": "2B parameters, instruction-tuned",
             "type": "instruct",
         },
         "gemma-7b": {
-            "name": "google/gemma-7b",
+            "model_path": "models/gemma-7b.gguf",
+            "repo_id": "google/gemma-7b",  # update to the actual repo id
+            "filename": "gemma-7b.gguf",  # update to the actual filename
             "description": "7B parameters, base model",
             "type": "base",
         },
         "gemma-7b-it": {
-            "name": "google/gemma-7b-it",
+            "model_path": "models/gemma-7b-it.gguf",
+            "repo_id": "google/gemma-7b-it",  # update to the actual repo id
+            "filename": "gemma-7b-it.gguf",  # update to the actual filename
             "description": "7B parameters, instruction-tuned",
             "type": "instruct",
         },
+        "gemma-7b-gguf": {
+            "model_path": "models/gemma-7b.gguf",
+            "repo_id": "google/gemma-7b-GGUF",  # repository for the GGUF model
+            "filename": "gemma-7b.gguf",  # updated filename for GGUF model
+            "description": "7B parameters in GGUF format",
+            "type": "base",
+        },
     }
 
-    def __init__(self, name: str = "google/gemma-2b"):
-        self.name = name
-        self.model = None
-        self.tokenizer = None
-        self.pipeline = None
-
-    def load_model(self, device_map: str = "cpu"):
+    def __init__(self, name: str = "gemma-2b"):
         """
-        Load the model using session state
+        Initialize the model instance.
 
         Args:
-            device_map: Device mapping strategy (should be "cpu" for CPU-only inference)
+            name (str): The model name (should match one of the AVAILABLE_MODELS keys).
         """
-        # Create a unique key for this model in session state
+        self.name = name
+        self.model = None  # Instance of Llama from llama.cpp
+
+    def load_model(self, n_threads: int = 2, n_ctx: int = 2048, n_gpu_layers: int = 0):
+        """
+        Load the model and cache it in Streamlit's session state.
+        If the model file does not exist, it will be downloaded to the models/ directory.
+
+        Args:
+            n_threads (int): Number of CPU threads to use.
+            n_ctx (int): Context window size.
+            n_gpu_layers (int): Number of layers to offload to GPU (if supported; 0 for CPU-only).
+
+        Returns:
+            self: Loaded model instance.
+        """
+        model_info = self.AVAILABLE_MODELS.get(self.name)
+        if not model_info:
+            raise ValueError(f"Model {self.name} is not available.")
+
+        model_path = model_info["model_path"]
+        # If the model file doesn't exist, download it.
+        if not os.path.exists(model_path):
+            os.makedirs(os.path.dirname(model_path), exist_ok=True)
+            repo_id = model_info.get("repo_id")
+            filename = model_info.get("filename")
+            if repo_id is None or filename is None:
+                raise ValueError(
+                    "Repository ID or filename is missing for model download."
+                )
+            with st.spinner(f"Downloading {self.name}..."):
+                downloaded_path = hf_hub_download(
+                    repo_id=repo_id,
+                    filename=filename,
+                    local_dir=os.path.dirname(model_path),
+                    local_dir_use_symlinks=False,
+                )
+                # If the downloaded file is not at the expected location, rename it.
+                if downloaded_path != model_path:
+                    os.rename(downloaded_path, model_path)
+
         model_key = f"gemma_model_{self.name}"
-        tokenizer_key = f"gemma_tokenizer_{self.name}"
-        pipeline_key = f"gemma_pipeline_{self.name}"
-
-        # Check if model is already loaded in session state
-        if (
-            model_key not in st.session_state
-            or tokenizer_key not in st.session_state
-            or pipeline_key not in st.session_state
-        ):
-
-            # Show loading indicator
+        if model_key not in st.session_state:
             with st.spinner(f"Loading {self.name}..."):
-                tokenizer, model, pipe = load_model(self.name, device_map)
-
-                # Store in session state
-                st.session_state[tokenizer_key] = tokenizer
-                st.session_state[model_key] = model
-                st.session_state[pipeline_key] = pipe
-
-        # Get model from session state
-        self.tokenizer = st.session_state[tokenizer_key]
+                st.session_state[model_key] = Llama(
+                    model_path=model_path,
+                    n_threads=n_threads,
+                    n_ctx=n_ctx,
+                    n_gpu_layers=n_gpu_layers,
+                )
         self.model = st.session_state[model_key]
-        self.pipeline = st.session_state[pipeline_key]
-
         return self
 
     def generate_response(
         self,
         prompt: str,
-        max_length: int = 512,
+        max_tokens: int = 512,
         temperature: float = 0.7,
-        num_return_sequences: int = 1,
         **kwargs,
     ) -> str:
         """
-        Generate a response using the text generation pipeline
+        Generate a response using the llama.cpp model.
 
         Args:
-            prompt: Input text
-            max_length: Maximum number of new tokens to generate
-            temperature: Sampling temperature (higher = more creative)
-            num_return_sequences: Number of responses to generate
-            **kwargs: Additional generation parameters for the pipeline
+            prompt (str): Input prompt text.
+            max_tokens (int): Maximum number of tokens to generate.
+            temperature (float): Sampling temperature (higher = more creative).
+            **kwargs: Additional generation parameters.
 
         Returns:
-            str: Generated response
+            str: Generated response text.
         """
-        if not self.pipeline:
+        if self.model is None:
             self.load_model()
 
-        # Update generation config with any provided kwargs
-        generation_config = {
-            "max_new_tokens": max_length,
-            "temperature": temperature,
-            "num_return_sequences": num_return_sequences,
-            "do_sample": True,
+        # Call the llama.cpp model with the provided parameters.
+        response = self.model(
+            prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
             **kwargs,
-        }
-
-        # Generate response using the pipeline
-        outputs = self.pipeline(prompt, **generation_config)
-
-        # Extract the generated text
-        if num_return_sequences == 1:
-            response = outputs[0]["generated_text"]
-        else:
-            # Join multiple sequences if requested
-            response = "\n---\n".join(output["generated_text"] for output in outputs)
-
-        return response.strip()
+        )
+        generated_text = response["choices"][0]["text"]
+        return generated_text.strip()
 
     def get_model_info(self) -> Dict:
-        """Return information about the model"""
+        """
+        Return information about the model.
+
+        Returns:
+            Dict: A dictionary containing the model name and load status.
+        """
         return {
             "name": self.name,
             "loaded": self.model is not None,
-            "pipeline_ready": self.pipeline is not None,
         }
 
     def get_model_name(self) -> str:
-        """Return the name of the model"""
+        """
+        Return the name of the model.
+
+        Returns:
+            str: Model name.
+        """
         return self.name
