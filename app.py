@@ -87,7 +87,7 @@ def main():
 
         # Load model (will use cached version if available)
         with st.spinner(f"Loading {model_name}..."):
-            model.load_model(device_map="auto")
+            model.load_model()
 
         # Initialize prompt manager with selected task
         prompt_manager = PromptManager(task=st.session_state.selected_task)
