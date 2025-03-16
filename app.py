@@ -82,9 +82,7 @@ def main():
     # Main content area
     if st.session_state.authenticated:
         # Initialize model with the selected configuration
-        model_name = LlamaCppGemmaModel.AVAILABLE_MODELS[
-            st.session_state.selected_model
-        ]["name"]
+        model_name = st.session_state.selected_model
         model = LlamaCppGemmaModel(name=model_name)
 
         # Load model (will use cached version if available)
