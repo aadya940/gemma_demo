@@ -1,11 +1,11 @@
 from ._chat import StreamlitChat
-from ._model import HuggingFaceGemmaModel
+from ._model import LlamaCppGemmaModel
 from ._prompts import PromptManager
 from ._utils import huggingface_login
 
 __all__ = [
     "StreamlitChat",
-    "HuggingFaceGemmaModel",
+    "LlamaCppGemmaModel",
     "PromptManager",
     "huggingface_login",
 ]
