@@ -16,7 +16,6 @@ class LlamaCppGemmaModel:
     - gemma-2b-it: 2B parameters, instruction-tuned
     - gemma-7b: 7B parameters, base model
     - gemma-7b-it: 7B parameters, instruction-tuned
-    - gemma-7b-gguf: 7B parameters in GGUF format
 
     All models will be stored in the "models/" directory.
     """
@@ -35,13 +34,6 @@ class LlamaCppGemmaModel:
             "filename": "gemma-2b-it.gguf",  # update to the actual filename
             "description": "2B parameters, instruction-tuned",
             "type": "instruct",
-        },
-        "gemma-7b": {
-            "model_path": "models/gemma-7b.gguf",
-            "repo_id": "google/gemma-7b",  # update to the actual repo id
-            "filename": "gemma-7b.gguf",  # update to the actual filename
-            "description": "7B parameters, base model",
-            "type": "base",
         },
         "gemma-7b-it": {
             "model_path": "models/gemma-7b-it.gguf",
