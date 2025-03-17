@@ -47,7 +47,7 @@ HuggingFace Spaces Link: https://huggingface.co/spaces/aadya1762/GemmaDemoSt2
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.12
 - Hugging Face account with access to Gemma models
 - Dependencies listed in requirements.txt
 
