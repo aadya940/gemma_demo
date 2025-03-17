@@ -26,20 +26,19 @@ class GradioChat:
         return LlamaCppGemmaModel(name=model_name).load_model()
 
     def _chat(self):
-        def chat_fn(message, history, selected_model):
+        def chat_fn(message, history, selected_model, selected_task):
             if selected_model != self.current_model_name:
                 self.current_model_name = selected_model
                 self.model = self._load_model(selected_model)  # Reload model when changed
 
-            prompt = self.prompt_manager.get_prompt(user_input=message)
+            prompt = self.prompt_manager.get_prompt(user_input=message, task=selected_task)
             response = self.model.generate_response(prompt)
             return response
 
         chat_interface = gr.ChatInterface(
             chat_fn,
-            textbox=gr.Textbox(placeholder="What is up?", container=False),
+            textbox=gr.Textbox(placeholder="Ask me something...", container=False),
             additional_inputs=[
-                gr.State(self.current_model_name),  # Store selected model state
                 gr.Dropdown(choices=self.model_options, value=self.current_model_name, label="Select Gemma Model"),
                 gr.Dropdown(choices=self.task_options, value="Question Answering", label="Select Task"),
             ],
