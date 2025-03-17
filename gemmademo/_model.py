@@ -101,6 +101,7 @@ class LlamaCppGemmaModel:
             n_threads=os.cpu_count(),
             n_ctx=n_ctx,
             n_gpu_layers=n_gpu_layers,
+            n_batch=8,
         )
         return self
 
