@@ -19,13 +19,23 @@ class LlamaCppGemmaModel:
     All models will be stored in the "models/" directory.
     """
 
+    # Class variable to cache loaded models
+    _model_cache = {}
+
     AVAILABLE_MODELS: Dict[str, Dict] = {
         "gemma-3b": {
-            "model_path": "models/gemma3.gguf",
-            "repo_id": "unsloth/gemma-3-1b-it-GGUF",  # update to the actual repo id
-            "filename": "gemma-3-1b-it-Q3_K_M.gguf",
-            "description": "3B parameters, base model",
-            "type": "base",
+            "model_path": "models/gemma-3-1b-it-Q5_K_M.gguf",
+            "repo_id": "bartowski/google_gemma-3-1b-it-GGUF",  # Updated repo
+            "filename": "google_gemma-3-1b-it-Q5_K_M.gguf",  # Better quantization
+            "description": "3B parameters, instruction-tuned (Q5_K_M)",
+            "type": "instruct",
+        },
+        "gemma-3b-q6": {
+            "model_path": "models/gemma-3-1b-it-Q6_K.gguf",
+            "repo_id": "bartowski/google_gemma-3-1b-it-GGUF",  # Updated repo
+            "filename": "google_gemma-3-1b-it-Q6_K.gguf",  # Higher quality quantization
+            "description": "3B parameters, instruction-tuned (Q6_K)",
+            "type": "instruct",
         },
         "gemma-2b": {
             "model_path": "models/gemma-2b.gguf",
@@ -71,11 +81,18 @@ class LlamaCppGemmaModel:
     def load_model(self, n_ctx: int = 2048, n_gpu_layers: int = 0):
         """
         Load the model. If the model file does not exist, it will be downloaded.
+        Uses caching to avoid reloading models unnecessarily.
 
         Args:
             n_ctx (int): Context window size.
             n_gpu_layers (int): Number of layers to offload to GPU (if supported; 0 for CPU-only).
         """
+        # Check if model is already loaded in cache
+        cache_key = f"{self.name}_{n_ctx}_{n_gpu_layers}"
+        if cache_key in LlamaCppGemmaModel._model_cache:
+            self.model = LlamaCppGemmaModel._model_cache[cache_key]
+            return self
+
         model_info = self.AVAILABLE_MODELS.get(self.name)
         if not model_info:
             raise ValueError(f"Model {self.name} is not available.")
@@ -103,7 +120,8 @@ class LlamaCppGemmaModel:
             if downloaded_path != model_path:
                 os.rename(downloaded_path, model_path)
 
-        _threads = os.cpu_count()
+        # Use optimized thread settings (fewer threads often works better)
+        _threads = min(2, os.cpu_count() or 1)
 
         self.model = Llama(
             model_path=model_path,
@@ -112,19 +130,32 @@ class LlamaCppGemmaModel:
             n_ctx=n_ctx,
             n_gpu_layers=n_gpu_layers,
             n_batch=8,
+            verbose=False,  # Disable verbose output for better performance
         )
+
+        # Cache the model for future use
+        LlamaCppGemmaModel._model_cache[cache_key] = self.model
         return self
 
     def generate_response(
-        self, prompt: str, max_tokens: int = 512, temperature: float = 0.1
+        self,
+        prompt: str,
+        max_tokens: int = 512,
+        temperature: float = 0.7,
+        top_p: float = 0.95,
+        top_k: int = 40,
+        repeat_penalty: float = 1.1,
     ):
         """
-        Generate a response using the llama.cpp model.
+        Generate a response using the llama.cpp model with optimized parameters.
 
         Args:
             prompt (str): Input prompt text.
             max_tokens (int): Maximum number of tokens to generate.
             temperature (float): Sampling temperature (higher = more creative).
+            top_p (float): Nucleus sampling threshold.
+            top_k (int): Limit vocabulary choices to top K tokens.
+            repeat_penalty (float): Penalize repeated words.
 
         Yields:
             str: Generated response text as a stream.
@@ -138,6 +169,9 @@ class LlamaCppGemmaModel:
             messages=self.messages,
             max_tokens=max_tokens,
             temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+            repeat_penalty=repeat_penalty,
             stream=True,
         )
         self.messages.append({"role": "assistant", "content": ""})

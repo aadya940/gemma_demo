@@ -20,12 +20,19 @@ class GradioChat:
         self.current_model_name = "gemma-3b"  # Default model
         self.current_task_name = "Question Answering"  # Default task
 
-        self.model = self._load_model(self.current_model_name)
+        # Load model lazily on first use instead of at initialization
+        self.model = None
         self.prompt_manager = self._load_task(self.current_task_name)
+        self.models_cache = {}  # Cache for loaded models
 
     def _load_model(self, model_name: str):
-        """Loads the model dynamically when switching models."""
-        return LlamaCppGemmaModel(name=model_name).load_model()
+        """Loads the model dynamically when switching models, with caching."""
+        if model_name in self.models_cache:
+            return self.models_cache[model_name]
+
+        model = LlamaCppGemmaModel(name=model_name).load_model()
+        self.models_cache[model_name] = model
+        return model
 
     def _load_task(self, task_name: str):
         """Loads the task dynamically when switching tasks."""
@@ -33,7 +40,11 @@ class GradioChat:
 
     def _chat(self):
         def chat_fn(message, history, selected_model, selected_task):
-            # Reload model if changed
+            # Lazy load model on first use
+            if self.model is None:
+                self.model = self._load_model(self.current_model_name)
+
+            # Reload model if changed, using cache when possible
             if selected_model != self.current_model_name:
                 self.current_model_name = selected_model
                 self.model = self._load_model(selected_model)
