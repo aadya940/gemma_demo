@@ -31,7 +31,7 @@ def main():
         st.title("Gemma Chat Configuration")
 
         # Login section
-        huggingface_login(os.get_env("HF_TOKEN"))
+        huggingface_login(os.getenv("HF_TOKEN"))
         # Model selection
         st.subheader("Model Selection")
         model_options = list(LlamaCppGemmaModel.AVAILABLE_MODELS.keys())
