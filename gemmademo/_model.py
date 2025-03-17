@@ -129,15 +129,15 @@ class LlamaCppGemmaModel:
             temperature=temperature,
             stream=True,
         )
+        self.messages.append({"role": "assistant", "content": ""})
 
         outputs = ""
         for chunk in response_stream:
             delta = chunk["choices"][0]["delta"]
             if "content" in delta:
                 outputs += delta["content"]
+                self.messages[-1]["content"] += delta["content"]
                 yield outputs
-
-        return outputs
 
     def get_model_info(self) -> Dict:
         """
