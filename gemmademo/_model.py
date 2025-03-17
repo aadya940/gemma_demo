@@ -51,9 +51,7 @@ class LlamaCppGemmaModel:
         },
     }
 
-    def __init__(
-        self, name: str = "gemma-2b", max_tokens: int = 512, temperature: float = 0.7
-    ):
+    def __init__(self, name: str = "gemma-2b",):
         """
         Initialize the model instance.
 
@@ -62,8 +60,6 @@ class LlamaCppGemmaModel:
         """
         self.name = name
         self.model = None  # Instance of Llama from llama.cpp
-        self.max_tokens = max_tokens
-        self.temperature = temperature
 
     def load_model(self, n_ctx: int = 2048, n_gpu_layers: int = 0):
         """
@@ -118,6 +114,8 @@ class LlamaCppGemmaModel:
     def generate_response(
         self,
         prompt: str,
+        max_tokens: int = 512,
+        temperature: float = 0.7,
     ) -> str:
         """
         Generate a response using the llama.cpp model.
@@ -137,8 +135,8 @@ class LlamaCppGemmaModel:
         # Call the llama.cpp model with the provided parameters.
         response = self.model(
             prompt,
-            max_tokens=self.max_tokens,
-            temperature=self.temperature,
+            max_tokens=max_tokens,
+            temperature=temperature,
         )
         generated_text = response["choices"][0]["text"]
         return generated_text.strip()
