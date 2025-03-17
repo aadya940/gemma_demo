@@ -29,8 +29,6 @@ class GradioChat:
 
         chat_interface = gr.ChatInterface(
             chat_fn,
-            chatbot=gr.Chatbot(label="Using model: " + self.model.get_model_name()),
             textbox=gr.Textbox(placeholder="What is up?", container=False),
         )
-
         chat_interface.launch()
