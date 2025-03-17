@@ -17,13 +17,16 @@ class GradioChat:
     def __init__(self, model_options: list[str], task_options: list[str]):
         self.model_options = model_options
         self.task_options = task_options
-        self.current_model_name = "gemma-3b"  # Default model
-        self.current_task_name = "Question Answering"  # Default task
+
+        self.current_model_name = "gemma-3b"
+        self.current_task_name = "Question Answering"
 
         # Load model lazily on first use instead of at initialization
         self.model = None
         self.prompt_manager = self._load_task(self.current_task_name)
-        self.models_cache = {}  # Cache for loaded models
+
+        # Cache.
+        self.models_cache = {}
 
     def _load_model(self, model_name: str):
         """Loads the model dynamically when switching models, with caching."""
@@ -48,11 +51,16 @@ class GradioChat:
             if selected_model != self.current_model_name:
                 self.current_model_name = selected_model
                 self.model = self._load_model(selected_model)
+                # Clear message history when model changes
+                self.model.messages = []
 
             # Reload task if changed
             if selected_task != self.current_task_name:
                 self.current_task_name = selected_task
                 self.prompt_manager = self._load_task(selected_task)
+                # Clear message history when task changes
+                if self.model:
+                    self.model.messages = []
 
             # Generate response using updated model & prompt manager
             prompt = self.prompt_manager.get_prompt(user_input=message)

@@ -120,7 +120,6 @@ class LlamaCppGemmaModel:
             if downloaded_path != model_path:
                 os.rename(downloaded_path, model_path)
 
-        # Use optimized thread settings (fewer threads often works better)
         _threads = min(2, os.cpu_count() or 1)
 
         self.model = Llama(
