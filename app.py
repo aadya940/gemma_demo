@@ -21,8 +21,6 @@ def main():
     st.set_page_config(page_title="Gemma Chat Demo", layout="wide")
 
     # Initialize session state variables
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
     if "selected_model" not in st.session_state:
         st.session_state.selected_model = "gemma-2b-it"
     if "selected_task" not in st.session_state:
@@ -33,22 +31,7 @@ def main():
         st.title("Gemma Chat Configuration")
 
         # Login section
-        st.subheader("Login")
-        if not st.session_state.authenticated:
-            hf_token = st.text_input("Hugging Face Token", type="password")
-            if st.button("Login"):
-                try:
-                    huggingface_login(hf_token)
-                    st.session_state.authenticated = True
-                    st.success("Successfully logged in!")
-                except Exception as e:
-                    st.error(f"Login failed: {str(e)}")
-        else:
-            st.success("Logged in to Hugging Face")
-            if st.button("Logout"):
-                st.session_state.authenticated = False
-                st.rerun()
-
+        huggingface_login(os.get_env("HF_TOKEN"))
         # Model selection
         st.subheader("Model Selection")
         model_options = list(LlamaCppGemmaModel.AVAILABLE_MODELS.keys())
@@ -80,28 +63,23 @@ def main():
             st.rerun()
 
     # Main content area
-    if st.session_state.authenticated:
-        # Initialize model with the selected configuration
-        model_name = st.session_state.selected_model
-        model = LlamaCppGemmaModel(name=model_name)
+    # Initialize model with the selected configuration
+    model_name = st.session_state.selected_model
+    model = LlamaCppGemmaModel(name=model_name)
 
-        # Load model (will use cached version if available)
-        with st.spinner(f"Loading {model_name}..."):
-            model.load_model()
+    # Load model (will use cached version if available)
+    with st.spinner(f"Loading {model_name}..."):
+        model.load_model()
 
-        # Initialize prompt manager with selected task
-        prompt_manager = PromptManager(task=st.session_state.selected_task)
+    # Initialize prompt manager with selected task
+    prompt_manager = PromptManager(task=st.session_state.selected_task)
 
-        # Initialize chat interface
-        chat = StreamlitChat(model=model, prompt_manager=prompt_manager)
-        st.session_state.chat_instance = chat
+    # Initialize chat interface
+    chat = StreamlitChat(model=model, prompt_manager=prompt_manager)
+    st.session_state.chat_instance = chat
 
-        # Run the chat interface
-        chat.run()
-    else:
-        st.info(
-            "Please login with your Hugging Face token in the sidebar to start chatting."
-        )
+    # Run the chat interface
+    chat.run()
 
 
 if __name__ == "__main__":
