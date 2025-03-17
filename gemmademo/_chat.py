@@ -18,8 +18,9 @@ class GradioChat:
         self.model_options = model_options
         self.task_options = task_options
         self.current_model_name = "gemma-2b-it"  # Default model
-        self.model = self._load_model(self.current_model_name)
         self.current_task_name = "Question Answering"  # Default task
+
+        self.model = self._load_model(self.current_model_name)
         self.prompt_manager = self._load_task(self.current_task_name)
 
     def _load_model(self, model_name: str):
@@ -44,15 +45,23 @@ class GradioChat:
 
             # Generate response using updated model & prompt manager
             prompt = self.prompt_manager.get_prompt(user_input=message)
-            response = self.model.generate_response(prompt)
-            return response
+            response_stream = self.model.generate_response(prompt)
+            yield from response_stream
 
         chat_interface = gr.ChatInterface(
             chat_fn,
             textbox=gr.Textbox(placeholder="Ask me something...", container=False),
             additional_inputs=[
-                gr.Dropdown(choices=self.model_options, value=self.current_model_name, label="Select Gemma Model"),
-                gr.Dropdown(choices=self.task_options, value=self.current_task_name, label="Select Task"),
+                gr.Dropdown(
+                    choices=self.model_options,
+                    value=self.current_model_name,
+                    label="Select Gemma Model",
+                ),
+                gr.Dropdown(
+                    choices=self.task_options,
+                    value=self.current_task_name,
+                    label="Select Task",
+                ),
             ],
         )
         chat_interface.launch()

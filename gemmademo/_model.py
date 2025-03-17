@@ -59,6 +59,7 @@ class LlamaCppGemmaModel:
         """
         self.name = name
         self.model = None  # Instance of Llama from llama.cpp
+        self.messages = []
 
     def load_model(self, n_ctx: int = 2048, n_gpu_layers: int = 0):
         """
@@ -73,23 +74,25 @@ class LlamaCppGemmaModel:
             raise ValueError(f"Model {self.name} is not available.")
 
         model_path = model_info["model_path"]
-        
+
         # If the model file doesn't exist, download it.
         if not os.path.exists(model_path):
             os.makedirs(os.path.dirname(model_path), exist_ok=True)
             repo_id = model_info.get("repo_id")
             filename = model_info.get("filename")
-            
+
             if repo_id is None or filename is None:
-                raise ValueError("Repository ID or filename is missing for model download.")
-            
+                raise ValueError(
+                    "Repository ID or filename is missing for model download."
+                )
+
             downloaded_path = hf_hub_download(
                 repo_id=repo_id,
                 filename=filename,
                 local_dir=os.path.dirname(model_path),
                 local_dir_use_symlinks=False,
             )
-            
+
             if downloaded_path != model_path:
                 os.rename(downloaded_path, model_path)
 
@@ -101,7 +104,9 @@ class LlamaCppGemmaModel:
         )
         return self
 
-    def generate_response(self, prompt: str, max_tokens: int = 512, temperature: float = 0.7) -> str:
+    def generate_response(
+        self, prompt: str, max_tokens: int = 512, temperature: float = 0.7
+    ):
         """
         Generate a response using the llama.cpp model.
 
@@ -110,18 +115,25 @@ class LlamaCppGemmaModel:
             max_tokens (int): Maximum number of tokens to generate.
             temperature (float): Sampling temperature (higher = more creative).
 
-        Returns:
-            str: Generated response text.
+        Yields:
+            str: Generated response text as a stream.
         """
         if self.model is None:
             self.load_model()
 
-        response = self.model(
-            prompt,
+        self.messages.append({"role": "user", "content": prompt})
+
+        response_stream = self.model.create_chat_completion(
+            messages=self.messages,
             max_tokens=max_tokens,
             temperature=temperature,
+            stream=True,
         )
-        return response["choices"][0]["text"].strip()
+
+        for chunk in response_stream:
+            delta = chunk["choices"][0]["delta"]
+            if "content" in delta:
+                yield delta["content"].strip()
 
     def get_model_info(self) -> Dict:
         """
