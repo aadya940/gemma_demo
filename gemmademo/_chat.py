@@ -31,4 +31,3 @@ class GradioChat:
             chat_fn,
             textbox=gr.Textbox(placeholder="What is up?", container=False),
         )
-        chat_interface.launch()
