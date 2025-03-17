@@ -14,9 +14,11 @@ class GradioChat:
     - Formats user inputs before sending them to the model.
     """
 
-    def __init__(self, model: LlamaCppGemmaModel, prompt_manager: PromptManager):
+    def __init__(self, model: LlamaCppGemmaModel, prompt_manager: PromptManager, model_options: list[str], task_options: list[str]):
         self.model = model
         self.prompt_manager = prompt_manager
+        self.model_options = model_options
+        self.task_options = task_options
 
     def run(self):
         self._chat()
@@ -30,4 +32,9 @@ class GradioChat:
         chat_interface = gr.ChatInterface(
             chat_fn,
             textbox=gr.Textbox(placeholder="What is up?", container=False),
+            additional_inputs=[
+                gr.Dropdown(choices=self.model_options, value="gemma-2b-it", label="Select Gemma Model"),
+                gr.Dropdown(choices=self.task_options, value="Question Answering", label="Select Task"),
+            ],
         )
+        chat_interface.launch()
