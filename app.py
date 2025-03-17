@@ -1,9 +1,6 @@
 # Interface all the functions from gemmademo.
-# Implement login functionality in the side bar.
 # Implement a task selector in the side bar.
-# Interface all the functions from gemmademo.
 # Add a button to clear the chat history.
-
 import streamlit as st
 from gemmademo import (
     LlamaCppGemmaModel,
@@ -25,6 +22,10 @@ def main():
         st.session_state.selected_model = "gemma-2b-it"
     if "selected_task" not in st.session_state:
         st.session_state.selected_task = "Question Answering"
+    if "max_tokens" not in st.session_state:
+        st.session_state.max_tokens = 512
+    if "temperature" not in st.session_state:
+        st.session_state.temperature = 0.7
 
     # Sidebar for login and configuration
     with st.sidebar:
@@ -56,6 +57,31 @@ def main():
             st.session_state.selected_task = selected_task
             st.rerun()
 
+        # Model Config Selection
+        new_max_tokens_value = st.slider(
+            "Max Tokens",
+            min_value=1,
+            max_value=4096,
+            value=st.session_state.max_tokens,
+            step=1,
+        )
+        # After setting the slider values
+        if st.session_state.max_tokens != new_max_tokens_value:
+            st.session_state.max_tokens = new_max_tokens_value
+            st.rerun()
+
+        new_temperature_value = st.slider(
+            "Temperature",
+            min_value=0.0,
+            max_value=1.0,
+            value=st.session_state.temperature,
+            step=0.01,
+        )
+        # After setting the slider values
+        if st.session_state.temperature != new_temperature_value:
+            st.session_state.temperature = new_temperature_value
+            st.rerun()
+
         # Clear chat history button
         if st.button("Clear Chat History"):
             if "chat_instance" in st.session_state:
@@ -65,7 +91,11 @@ def main():
     # Main content area
     # Initialize model with the selected configuration
     model_name = st.session_state.selected_model
-    model = LlamaCppGemmaModel(name=model_name)
+    model = LlamaCppGemmaModel(
+        name=model_name,
+        max_tokens=st.session_state.max_tokens,
+        temperature=st.session_state.temperature,
+    )
 
     # Load model (will use cached version if available)
     with st.spinner(f"Loading {model_name}..."):

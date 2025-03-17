@@ -51,7 +51,9 @@ class LlamaCppGemmaModel:
         },
     }
 
-    def __init__(self, name: str = "gemma-2b"):
+    def __init__(
+        self, name: str = "gemma-2b", max_tokens: int = 512, temperature: float = 0.7
+    ):
         """
         Initialize the model instance.
 
@@ -60,8 +62,10 @@ class LlamaCppGemmaModel:
         """
         self.name = name
         self.model = None  # Instance of Llama from llama.cpp
+        self.max_tokens = max_tokens
+        self.temperature = temperature
 
-    def load_model(self, n_threads: int = 2, n_ctx: int = 2048, n_gpu_layers: int = 0):
+    def load_model(self, n_ctx: int = 2048, n_gpu_layers: int = 0):
         """
         Load the model and cache it in Streamlit's session state.
         If the model file does not exist, it will be downloaded to the models/ directory.
@@ -104,7 +108,7 @@ class LlamaCppGemmaModel:
             with st.spinner(f"Loading {self.name}..."):
                 st.session_state[model_key] = Llama(
                     model_path=model_path,
-                    n_threads=n_threads,
+                    n_threads=os.cpu_count(),
                     n_ctx=n_ctx,
                     n_gpu_layers=n_gpu_layers,
                 )
@@ -114,9 +118,6 @@ class LlamaCppGemmaModel:
     def generate_response(
         self,
         prompt: str,
-        max_tokens: int = 512,
-        temperature: float = 0.7,
-        **kwargs,
     ) -> str:
         """
         Generate a response using the llama.cpp model.
@@ -136,9 +137,8 @@ class LlamaCppGemmaModel:
         # Call the llama.cpp model with the provided parameters.
         response = self.model(
             prompt,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            **kwargs,
+            max_tokens=self.max_tokens,
+            temperature=self.temperature,
         )
         generated_text = response["choices"][0]["text"]
         return generated_text.strip()
