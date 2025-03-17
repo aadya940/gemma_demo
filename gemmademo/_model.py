@@ -20,6 +20,13 @@ class LlamaCppGemmaModel:
     """
 
     AVAILABLE_MODELS: Dict[str, Dict] = {
+        "gemma-3b": {
+            "model_path": "models/gemma3.gguf",
+            "repo_id": "unsloth/gemma-3-1b-it-GGUF",  # update to the actual repo id
+            "filename": "gemma-3-1b-it-Q3_K_M.gguf",
+            "description": "3B parameters, base model",
+            "type": "base",
+        },
         "gemma-2b": {
             "model_path": "models/gemma-2b.gguf",
             "repo_id": "rahuldshetty/gemma-2b-gguf-quantized",  # update to the actual repo id
@@ -50,7 +57,7 @@ class LlamaCppGemmaModel:
         },
     }
 
-    def __init__(self, name: str = "gemma-2b"):
+    def __init__(self, name: str = "gemma-3b"):
         """
         Initialize the model instance.
 
@@ -96,9 +103,12 @@ class LlamaCppGemmaModel:
             if downloaded_path != model_path:
                 os.rename(downloaded_path, model_path)
 
+        _threads = os.cpu_count()
+
         self.model = Llama(
             model_path=model_path,
-            n_threads=os.cpu_count(),
+            n_threads=_threads,
+            n_threads_batch=_threads,
             n_ctx=n_ctx,
             n_gpu_layers=n_gpu_layers,
             n_batch=8,
@@ -106,7 +116,7 @@ class LlamaCppGemmaModel:
         return self
 
     def generate_response(
-        self, prompt: str, max_tokens: int = 512, temperature: float = 0.7
+        self, prompt: str, max_tokens: int = 512, temperature: float = 0.1
     ):
         """
         Generate a response using the llama.cpp model.

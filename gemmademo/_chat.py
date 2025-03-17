@@ -17,7 +17,7 @@ class GradioChat:
     def __init__(self, model_options: list[str], task_options: list[str]):
         self.model_options = model_options
         self.task_options = task_options
-        self.current_model_name = "gemma-2b-it"  # Default model
+        self.current_model_name = "gemma-3b"  # Default model
         self.current_task_name = "Question Answering"  # Default task
 
         self.model = self._load_model(self.current_model_name)
