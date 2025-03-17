@@ -23,29 +23,29 @@ class LlamaCppGemmaModel:
     AVAILABLE_MODELS: Dict[str, Dict] = {
         "gemma-2b": {
             "model_path": "models/gemma-2b.gguf",
-            "repo_id": "google/gemma-2b",  # update to the actual repo id
-            "filename": "gemma-2b.gguf",  # update to the actual filename
+            "repo_id": "rahuldshetty/gemma-2b-gguf-quantized",  # update to the actual repo id
+            "filename": "gemma-2b-Q4_K_M.gguf",  # update to the actual filename
             "description": "2B parameters, base model",
             "type": "base",
         },
         "gemma-2b-it": {
             "model_path": "models/gemma-2b-it.gguf",
-            "repo_id": "google/gemma-2b-it",  # update to the actual repo id
-            "filename": "gemma-2b-it.gguf",  # update to the actual filename
+            "repo_id": "MaziyarPanahi/gemma-2b-it-GGUF",  # update to the actual repo id
+            "filename": "gemma-2b-it.Q4_K_M.gguf",  # update to the actual filename
             "description": "2B parameters, instruction-tuned",
             "type": "instruct",
         },
         "gemma-7b-it": {
             "model_path": "models/gemma-7b-it.gguf",
-            "repo_id": "google/gemma-7b-it",  # update to the actual repo id
-            "filename": "gemma-7b-it.gguf",  # update to the actual filename
+            "repo_id": "MaziyarPanahi/gemma-7b-GGUF",  # update to the actual repo id
+            "filename": "gemma-7b.Q4_K_M.gguf",  # update to the actual filename
             "description": "7B parameters, instruction-tuned",
             "type": "instruct",
         },
         "gemma-7b-gguf": {
             "model_path": "models/gemma-7b.gguf",
-            "repo_id": "google/gemma-7b-GGUF",  # repository for the GGUF model
-            "filename": "gemma-7b.gguf",  # updated filename for GGUF model
+            "repo_id": "rahuldshetty/gemma-7b-it-gguf-quantized",  # repository for the GGUF model
+            "filename": "gemma-7b-it-Q4_K_M.gguf",  # updated filename for GGUF model
             "description": "7B parameters in GGUF format",
             "type": "base",
         },
