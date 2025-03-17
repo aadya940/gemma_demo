@@ -53,6 +53,10 @@ def main():
             st.session_state.selected_task = selected_task
             st.rerun()
 
+        # Clear chat history button
+        if st.button("Clear Chat History"):
+            st.session_state.messages = []  # Clear the chat history
+            st.success("Chat history cleared!")
 
     # Main content area
     # Initialize model with the selected configuration
