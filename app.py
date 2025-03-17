@@ -57,11 +57,7 @@ def main():
     # Main content area
     # Initialize model with the selected configuration
     model_name = st.session_state.selected_model
-    model = LlamaCppGemmaModel(
-        name=model_name,
-        max_tokens=st.session_state.max_tokens,
-        temperature=st.session_state.temperature,
-    )
+    model = LlamaCppGemmaModel(name=model_name)
 
     # Load model (will use cached version if available)
     with st.spinner(f"Loading {model_name}..."):
