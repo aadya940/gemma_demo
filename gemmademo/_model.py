@@ -130,10 +130,14 @@ class LlamaCppGemmaModel:
             stream=True,
         )
 
+        outputs = ""
         for chunk in response_stream:
             delta = chunk["choices"][0]["delta"]
             if "content" in delta:
-                yield delta["content"].strip()
+                outputs += delta["content"]
+                yield outputs
+
+        return outputs
 
     def get_model_info(self) -> Dict:
         """
