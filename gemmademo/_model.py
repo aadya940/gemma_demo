@@ -30,13 +30,6 @@ class LlamaCppGemmaModel:
             "description": "3B parameters, instruction-tuned (Q5_K_M)",
             "type": "instruct",
         },
-        "gemma-3b-q6": {
-            "model_path": "models/gemma-3-1b-it-Q6_K.gguf",
-            "repo_id": "bartowski/google_gemma-3-1b-it-GGUF",  # Updated repo
-            "filename": "google_gemma-3-1b-it-Q6_K.gguf",  # Higher quality quantization
-            "description": "3B parameters, instruction-tuned (Q6_K)",
-            "type": "instruct",
-        },
         "gemma-2b": {
             "model_path": "models/gemma-2b.gguf",
             "repo_id": "rahuldshetty/gemma-2b-gguf-quantized",  # update to the actual repo id
@@ -58,7 +51,7 @@ class LlamaCppGemmaModel:
             "description": "7B parameters, instruction-tuned",
             "type": "instruct",
         },
-        "gemma-7b-gguf": {
+        "gemma-7b": {
             "model_path": "models/gemma-7b.gguf",
             "repo_id": "rahuldshetty/gemma-7b-it-gguf-quantized",  # repository for the GGUF model
             "filename": "gemma-7b-it-Q4_K_M.gguf",  # updated filename for GGUF model
