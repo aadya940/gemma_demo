@@ -36,6 +36,7 @@ class PromptManager:
         """
         Format user input for code completion task
         """
-        prompt = f"""Complete the following code snippet directly without explanations or extra text:
+        prompt = f"""Complete the following code snippet directly with proper syntax and 
+        without explanations or extra text:
         {user_input}"""
         return prompt
