@@ -44,15 +44,15 @@ class LlamaCppGemmaModel:
             "description": "2B parameters, instruction-tuned",
             "type": "instruct",
         },
-        "gemma-7b-it": {
-            "model_path": "models/gemma-7b-it.gguf",
+        "gemma-7b": {
+            "model_path": "models/gemma-7b.gguf",
             "repo_id": "MaziyarPanahi/gemma-7b-GGUF",  # update to the actual repo id
             "filename": "gemma-7b.Q4_K_M.gguf",  # update to the actual filename
             "description": "7B parameters, instruction-tuned",
             "type": "instruct",
         },
-        "gemma-7b": {
-            "model_path": "models/gemma-7b.gguf",
+        "gemma-7b-it": {
+            "model_path": "models/gemma-7b-it.gguf",
             "repo_id": "rahuldshetty/gemma-7b-it-gguf-quantized",  # repository for the GGUF model
             "filename": "gemma-7b-it-Q4_K_M.gguf",  # updated filename for GGUF model
             "description": "7B parameters in GGUF format",
