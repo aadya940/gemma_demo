@@ -23,6 +23,7 @@ class LlamaCppGemmaModel:
     _model_cache = {}
 
     AVAILABLE_MODELS: Dict[str, Dict] = {
+        # Does the job well.
         "gemma-3b": {
             "model_path": "models/gemma-3-1b-it-Q5_K_M.gguf",
             "repo_id": "bartowski/google_gemma-3-1b-it-GGUF",  # Updated repo
@@ -31,13 +32,6 @@ class LlamaCppGemmaModel:
             "type": "instruct",
         },
         "gemma-2b": {
-            "model_path": "models/gemma-2b.gguf",
-            "repo_id": "rahuldshetty/gemma-2b-gguf-quantized",  # update to the actual repo id
-            "filename": "gemma-2b-Q4_K_M.gguf",  # update to the actual filename
-            "description": "2B parameters, base model",
-            "type": "base",
-        },
-        "gemma-2b-it": {
             "model_path": "models/gemma-2b-it.gguf",
             "repo_id": "MaziyarPanahi/gemma-2b-it-GGUF",  # update to the actual repo id
             "filename": "gemma-2b-it.Q4_K_M.gguf",  # update to the actual filename
@@ -45,13 +39,6 @@ class LlamaCppGemmaModel:
             "type": "instruct",
         },
         "gemma-7b": {
-            "model_path": "models/gemma-7b.gguf",
-            "repo_id": "MaziyarPanahi/gemma-7b-GGUF",  # update to the actual repo id
-            "filename": "gemma-7b.Q4_K_M.gguf",  # update to the actual filename
-            "description": "7B parameters, instruction-tuned",
-            "type": "instruct",
-        },
-        "gemma-7b-it": {
             "model_path": "models/gemma-7b-it.gguf",
             "repo_id": "rahuldshetty/gemma-7b-it-gguf-quantized",  # repository for the GGUF model
             "filename": "gemma-7b-it-Q4_K_M.gguf",  # updated filename for GGUF model
