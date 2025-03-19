@@ -23,25 +23,24 @@ class LlamaCppGemmaModel:
     _model_cache = {}
 
     AVAILABLE_MODELS: Dict[str, Dict] = {
-        # Does the job well.
         "gemma-3b": {
             "model_path": "models/gemma-3-1b-it-Q5_K_M.gguf",
-            "repo_id": "bartowski/google_gemma-3-1b-it-GGUF",  # Updated repo
+            "repo_id": "bartowski/google_gemma-3-1b-it-GGUF",  
             "filename": "google_gemma-3-1b-it-Q5_K_M.gguf",  # Better quantization
             "description": "3B parameters, instruction-tuned (Q5_K_M)",
             "type": "instruct",
         },
         "gemma-2b": {
             "model_path": "models/gemma-2b-it.gguf",
-            "repo_id": "MaziyarPanahi/gemma-2b-it-GGUF",  # update to the actual repo id
-            "filename": "gemma-2b-it.Q4_K_M.gguf",  # update to the actual filename
+            "repo_id": "MaziyarPanahi/gemma-2b-it-GGUF", 
+            "filename": "gemma-2b-it.Q4_K_M.gguf",
             "description": "2B parameters, instruction-tuned",
             "type": "instruct",
         },
         "gemma-7b": {
             "model_path": "models/gemma-7b-it.gguf",
-            "repo_id": "rahuldshetty/gemma-7b-it-gguf-quantized",  # repository for the GGUF model
-            "filename": "gemma-7b-it-Q4_K_M.gguf",  # updated filename for GGUF model
+            "repo_id": "rahuldshetty/gemma-7b-it-gguf-quantized",  
+            "filename": "gemma-7b-it-Q4_K_M.gguf",  
             "description": "7B parameters in GGUF format",
             "type": "base",
         },
@@ -109,7 +108,7 @@ class LlamaCppGemmaModel:
             n_ctx=n_ctx,
             n_gpu_layers=n_gpu_layers,
             n_batch=8,
-            verbose=False,  # Disable verbose output for better performance
+            verbose=False,
         )
 
         # Cache the model for future use

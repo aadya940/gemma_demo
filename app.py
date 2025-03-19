@@ -1,5 +1,5 @@
 import gradio as gr
-from gemmademo import LlamaCppGemmaModel, GradioChat, PromptManager
+from gemmademo import LlamaCppGemmaModel, GradioChat
 
 def main():
     # Model and task selection
