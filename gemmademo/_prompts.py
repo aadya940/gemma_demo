@@ -17,6 +17,8 @@ class PromptManager:
         Format user input for question answering task
         """
         prompt = f"""You are a helpful AI assistant. Answer the following question accurately and concisely.
+        Only answer the question, do not provide any other information.
+
         Question: {user_input}
 
         Answer:"""
@@ -27,6 +29,8 @@ class PromptManager:
         Format user input for text generation task
         """
         prompt = f"""Continue the following text in a coherent and engaging way:
+        Only continue the text, do not provide any other information.
+        
         {user_input}
 
         Continuation:"""
