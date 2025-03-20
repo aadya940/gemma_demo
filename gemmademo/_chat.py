@@ -118,16 +118,16 @@ class GradioChat:
                         value=self.current_model_name,
                         label="Select Gemma Model",
                     )
+                    examples_list = gr.Examples(
+                        examples=[[example] for example in _get_examples(self.current_task_name)],
+                        inputs=chat_interface.textbox,
+                    )
                     chat_interface = gr.ChatInterface(
                         chat_fn,
                         additional_inputs=[model_dropdown, task_dropdown],
                         textbox=gr.Textbox(
                             placeholder="Ask me something...", container=False
                         ),
-                    )
-                    examples_list = gr.Examples(
-                        examples=[[example] for example in _get_examples(self.current_task_name)],
-                        inputs=chat_interface.textbox,
                     )
                     task_dropdown.change(
                         _update_examples,
