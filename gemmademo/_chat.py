@@ -95,7 +95,7 @@ class GradioChat:
 
         with gr.Blocks() as demo:
             with gr.Row():
-                with gr.Column(scale=1):
+                with gr.Column():
                     task_dropdown = gr.Dropdown(
                         choices=self.task_options,
                         value=self.current_task_name,
@@ -119,6 +119,15 @@ class GradioChat:
                     )
 
                     gr.Markdown("## Examples")
+                    # Define chat_interface before using it in examples_list
+                    chat_interface = gr.ChatInterface(
+                        chat_fn,
+                        additional_inputs=[model_dropdown, task_dropdown],
+                        textbox=gr.Textbox(
+                            placeholder="Ask me something...", container=False
+                        ),
+                    )
+                    
                     examples_list = gr.Examples(
                         examples=_get_examples(self.current_task_name),
                         inputs=chat_interface.textbox,
@@ -127,15 +136,6 @@ class GradioChat:
                         _update_examples,
                         task_dropdown,
                         examples_list.dataset
-                    )
-
-                with gr.Column(scale=3):
-                    chat_interface = gr.ChatInterface(
-                        chat_fn,
-                        additional_inputs=[model_dropdown, task_dropdown],
-                        textbox=gr.Textbox(
-                            placeholder="Ask me something...", container=False
-                        ),
                     )
                     
         demo.launch()
