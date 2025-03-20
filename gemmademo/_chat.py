@@ -89,9 +89,13 @@ class GradioChat:
             }
             return examples.get(task)
 
+        def _update_examples(task):
+            """Updates the examples based on the selected task."""
+            return gr.Dataset(samples=_get_examples(task))
+
         with gr.Blocks() as demo:
             with gr.Row():
-                with gr.Column(scale=3):
+                with gr.Column(scale=1):
                     task_dropdown = gr.Dropdown(
                         choices=self.task_options,
                         value=self.current_task_name,
@@ -102,16 +106,6 @@ class GradioChat:
                         value=self.current_model_name,
                         label="Select Gemma Model",
                     )
-
-                    chat_interface = gr.ChatInterface(
-                        chat_fn,
-                        additional_inputs=[model_dropdown, task_dropdown],
-                        textbox=gr.Textbox(
-                            placeholder="Ask me something...", container=False
-                        ),
-                    )
-
-                with gr.Column(scale=1):
                     gr.Markdown(
                         """
                     ## Tips
@@ -129,12 +123,21 @@ class GradioChat:
                         examples=_get_examples(self.current_task_name),
                         inputs=chat_interface.textbox,
                     )
-                    examples_list.change(
-                        fn=_get_examples,
-                        inputs=self.current_task_name,
-                        outputs=examples_list,
+                    task_dropdown.change(
+                        _update_examples,
+                        task_dropdown,
+                        examples_list.dataset
                     )
 
+                with gr.Column(scale=3):
+                    chat_interface = gr.ChatInterface(
+                        chat_fn,
+                        additional_inputs=[model_dropdown, task_dropdown],
+                        textbox=gr.Textbox(
+                            placeholder="Ask me something...", container=False
+                        ),
+                    )
+                    
         demo.launch()
 
     def run(self):
