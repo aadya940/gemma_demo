@@ -96,18 +96,8 @@ class GradioChat:
 
         with gr.Blocks() as demo:
             with gr.Row():
-                with gr.Column():  # Sidebar column
-                    gr.Markdown(
-                        """
-                    ## Tips
-                    
-                    - First response will be slower (model loading)
-                    - Switching models clears chat history
-                    - Larger models (7B) need more memory but give better results
-                    """
-                    )
-
-                    gr.Markdown("## Examples")
+                with gr.Column(scale=3):  # Sidebar column
+                    gr.Markdown("## Google Gemma Models")
                     task_dropdown = gr.Dropdown(
                         choices=self.task_options,
                         value=self.current_task_name,
@@ -134,7 +124,19 @@ class GradioChat:
                         task_dropdown,
                         examples_list.dataset
                     )
+
+                with gr.Column(scale=1):
+                    gr.Markdown(
+                    """
+                    ## Tips
                     
+                    - First response will be slower (model loading)
+                    - Switching models clears chat history
+                    - Larger models (7B) need more memory but give better results
+                    """
+                    )
+
+
         demo.launch()
 
     def run(self):
