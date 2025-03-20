@@ -91,21 +91,12 @@ class GradioChat:
 
         def _update_examples(task):
             """Updates the examples based on the selected task."""
-            return gr.Dataset(samples=_get_examples(task))
+            examples = _get_examples(task)
+            return gr.Dataset(samples=[[example] for example in examples])
 
         with gr.Blocks() as demo:
             with gr.Row():
-                with gr.Column():
-                    task_dropdown = gr.Dropdown(
-                        choices=self.task_options,
-                        value=self.current_task_name,
-                        label="Select Task",
-                    )
-                    model_dropdown = gr.Dropdown(
-                        choices=self.model_options,
-                        value=self.current_model_name,
-                        label="Select Gemma Model",
-                    )
+                with gr.Column(scale=1):  # Sidebar column
                     gr.Markdown(
                         """
                     ## Tips
@@ -119,23 +110,33 @@ class GradioChat:
                     )
 
                     gr.Markdown("## Examples")
-                    # Define chat_interface before using it in examples_list
-                    chat_interface = gr.ChatInterface(
-                        chat_fn,
-                        additional_inputs=[model_dropdown, task_dropdown],
-                        textbox=gr.Textbox(
-                            placeholder="Ask me something...", container=False
-                        ),
-                    )
-                    
                     examples_list = gr.Examples(
-                        examples=_get_examples(self.current_task_name),
+                        examples=[[example] for example in _get_examples(self.current_task_name)],
                         inputs=chat_interface.textbox,
                     )
                     task_dropdown.change(
                         _update_examples,
                         task_dropdown,
                         examples_list.dataset
+                    )
+
+                with gr.Column(scale=3):  # Main content column
+                    task_dropdown = gr.Dropdown(
+                        choices=self.task_options,
+                        value=self.current_task_name,
+                        label="Select Task",
+                    )
+                    model_dropdown = gr.Dropdown(
+                        choices=self.model_options,
+                        value=self.current_model_name,
+                        label="Select Gemma Model",
+                    )
+                    chat_interface = gr.ChatInterface(
+                        chat_fn,
+                        additional_inputs=[model_dropdown, task_dropdown],
+                        textbox=gr.Textbox(
+                            placeholder="Ask me something...", container=False
+                        ),
                     )
                     
         demo.launch()
