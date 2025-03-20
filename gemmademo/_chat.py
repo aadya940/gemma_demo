@@ -126,15 +126,9 @@ class GradioChat:
                         ),
                     )
 
-                    def send_example_to_chat(example):
-                        """Function to send the example directly to the chat."""
-                        chat_interface.submit(example)
-
                     examples_list = gr.Examples(
                         examples=[[example] for example in _get_examples(self.current_task_name)],
-                        inputs=None,  # Remove direct input to textbox
-                        outputs=None,  # No direct output
-                        fn=send_example_to_chat  # Use function to send to chat
+                        inputs=chat_interface.textbox,
                     )
                     task_dropdown.change(
                         _update_examples,
