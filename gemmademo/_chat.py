@@ -40,7 +40,6 @@ class GradioChat:
     def _load_task(self, task_name: str):
         """Loads the task dynamically when switching tasks."""
         return PromptManager(task=task_name)
-    
 
     def _chat(self):
         def chat_fn(message, history, selected_model, selected_task):
@@ -118,7 +117,7 @@ class GradioChat:
 
                 with gr.Column(scale=1):
                     gr.Markdown(
-                    """
+                        """
                     ## Tips
                     
                     - First response will be slower (model loading)
@@ -127,13 +126,14 @@ class GradioChat:
                     """
                     )
                     examples_list = gr.Examples(
-                        examples=[[example] for example in _get_examples(self.current_task_name)],
+                        examples=[
+                            [example]
+                            for example in _get_examples(self.current_task_name)
+                        ],
                         inputs=chat_interface.textbox,
                     )
                     task_dropdown.change(
-                        _update_examples,
-                        task_dropdown,
-                        examples_list.dataset
+                        _update_examples, task_dropdown, examples_list.dataset
                     )
 
         demo.launch()

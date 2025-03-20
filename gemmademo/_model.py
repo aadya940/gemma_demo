@@ -39,8 +39,8 @@ class LlamaCppGemmaModel:
         },
         "gemma-7b": {
             "model_path": "models/gemma-7b-it.gguf",
-            "repo_id": "rahuldshetty/gemma-7b-it-gguf-quantized",
-            "filename": "gemma-7b-it-Q4_K_M.gguf",
+            "repo_id": "sayhan/gemma-7b-it-GGUF-quantized",
+            "filename": "gemma-7b-it.Q4_K_M-v2.gguf",
             "description": "7B parameters in GGUF format",
             "type": "base",
         },
