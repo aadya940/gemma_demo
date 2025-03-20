@@ -37,13 +37,6 @@ class LlamaCppGemmaModel:
             "description": "2B parameters, instruction-tuned",
             "type": "instruct",
         },
-        "gemma-7b": {
-            "model_path": "models/gemma-7b-it.gguf",
-            "repo_id": "sayhan/gemma-7b-it-GGUF-quantized",
-            "filename": "gemma-7b-it.Q4_K_M-v2.gguf",
-            "description": "7B parameters in GGUF format",
-            "type": "base",
-        },
     }
 
     def __init__(self, name: str = "gemma-3b"):
@@ -140,11 +133,6 @@ class LlamaCppGemmaModel:
         """
         if self.model is None:
             self.load_model()
-
-
-        if self.name == "gemma-7b":
-            temperature = 0
-            repeat_penalty = 1.0
 
         self.messages.append({"role": "user", "content": prompt})
 
