@@ -67,23 +67,77 @@ class GradioChat:
             response_stream = self.model.generate_response(prompt)
             yield from response_stream
 
-        chat_interface = gr.ChatInterface(
-            chat_fn,
-            textbox=gr.Textbox(placeholder="Ask me something...", container=False),
-            additional_inputs=[
-                gr.Dropdown(
-                    choices=self.model_options,
-                    value=self.current_model_name,
-                    label="Select Gemma Model",
-                ),
-                gr.Dropdown(
-                    choices=self.task_options,
-                    value=self.current_task_name,
-                    label="Select Task",
-                ),
+        # Examples for each task type
+        examples = {
+            "Question Answering": [
+                "What is quantum computing?",
+                "How do neural networks work?",
+                "Explain climate change in simple terms.",
             ],
-        )
-        chat_interface.launch()
+            "Text Generation": [
+                "Once upon a time in a distant galaxy...",
+                "The abandoned house at the end of the street had...",
+                "In the year 2150, humanity discovered...",
+            ],
+            "Code Completion": [
+                "def fibonacci(n):",
+                "class BinarySearchInAList:",
+                "async def fetch_data(url):",
+            ],
+        }
+
+        def update_examples(task):
+            return examples.get(task)
+
+        with gr.Blocks() as demo:
+            with gr.Row():
+                with gr.Column(scale=3):
+                    task_dropdown = gr.Dropdown(
+                        choices=self.task_options,
+                        value=self.current_task_name,
+                        label="Select Task",
+                    )
+                    model_dropdown = gr.Dropdown(
+                        choices=self.model_options,
+                        value=self.current_model_name,
+                        label="Select Gemma Model",
+                    )
+
+                    chat_interface = gr.ChatInterface(
+                        chat_fn,
+                        additional_inputs=[model_dropdown, task_dropdown],
+                        textbox=gr.Textbox(
+                            placeholder="Ask me something...", container=False
+                        ),
+                    )
+
+                with gr.Column(scale=1):
+                    gr.Markdown(
+                        """
+                    ## Tips
+                    
+                    - First response will be slower (model loading)
+                    - Switching models clears chat history
+                    - For code completion, start with function definition
+                    - Shorter queries work better
+                    - Larger models (7B) need more memory but give better results
+                    """
+                    )
+
+                    gr.Markdown("## Examples")
+                    examples_list = gr.Examples(
+                        examples=examples[self.current_task_name],
+                        inputs=chat_interface.textbox,
+                    )
+
+                    # Update examples when task changes
+                    task_dropdown.change(
+                        fn=update_examples,
+                        inputs=task_dropdown,
+                        outputs=examples_list,
+                    )
+
+        demo.launch()
 
     def run(self):
         self._chat()
