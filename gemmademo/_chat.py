@@ -115,15 +115,6 @@ class GradioChat:
                             placeholder="Ask me something...", container=False
                         ),
                     )
-                    examples_list = gr.Examples(
-                        examples=[[example] for example in _get_examples(self.current_task_name)],
-                        inputs=chat_interface.textbox,
-                    )
-                    task_dropdown.change(
-                        _update_examples,
-                        task_dropdown,
-                        examples_list.dataset
-                    )
 
                 with gr.Column(scale=1):
                     gr.Markdown(
@@ -135,7 +126,15 @@ class GradioChat:
                     - Larger models (7B) need more memory but give better results
                     """
                     )
-
+                    examples_list = gr.Examples(
+                        examples=[[example] for example in _get_examples(self.current_task_name)],
+                        inputs=chat_interface.textbox,
+                    )
+                    task_dropdown.change(
+                        _update_examples,
+                        task_dropdown,
+                        examples_list.dataset
+                    )
 
         demo.launch()
 
