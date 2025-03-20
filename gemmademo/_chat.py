@@ -96,31 +96,18 @@ class GradioChat:
 
         with gr.Blocks() as demo:
             with gr.Row():
-                with gr.Column(scale=1):  # Sidebar column
+                with gr.Column():  # Sidebar column
                     gr.Markdown(
                         """
                     ## Tips
                     
                     - First response will be slower (model loading)
                     - Switching models clears chat history
-                    - For code completion, start with function definition
-                    - Shorter queries work better
                     - Larger models (7B) need more memory but give better results
                     """
                     )
 
                     gr.Markdown("## Examples")
-                    examples_list = gr.Examples(
-                        examples=[[example] for example in _get_examples(self.current_task_name)],
-                        inputs=chat_interface.textbox,
-                    )
-                    task_dropdown.change(
-                        _update_examples,
-                        task_dropdown,
-                        examples_list.dataset
-                    )
-
-                with gr.Column(scale=3):  # Main content column
                     task_dropdown = gr.Dropdown(
                         choices=self.task_options,
                         value=self.current_task_name,
@@ -137,6 +124,16 @@ class GradioChat:
                         textbox=gr.Textbox(
                             placeholder="Ask me something...", container=False
                         ),
+                    )
+
+                    examples_list = gr.Examples(
+                        examples=[[example] for example in _get_examples(self.current_task_name)],
+                        inputs=chat_interface.textbox,
+                    )
+                    task_dropdown.change(
+                        _update_examples,
+                        task_dropdown,
+                        examples_list.dataset
                     )
                     
         demo.launch()
