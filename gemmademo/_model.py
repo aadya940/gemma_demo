@@ -141,6 +141,11 @@ class LlamaCppGemmaModel:
         if self.model is None:
             self.load_model()
 
+
+        if self.name == "gemma-7b":
+            temperature = 0
+            repeat_penalty = 1.0
+
         self.messages.append({"role": "user", "content": prompt})
 
         response_stream = self.model.create_chat_completion(
