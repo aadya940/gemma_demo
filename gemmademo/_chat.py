@@ -129,6 +129,11 @@ class GradioChat:
                         examples=_get_examples(self.current_task_name),
                         inputs=chat_interface.textbox,
                     )
+                    examples_list.change(
+                        fn=_get_examples,
+                        inputs=self.current_task_name,
+                        outputs=examples_list,
+                    )
 
         demo.launch()
 
