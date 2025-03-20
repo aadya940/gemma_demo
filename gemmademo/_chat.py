@@ -96,7 +96,9 @@ class GradioChat:
         with gr.Blocks() as demo:
             with gr.Row():
                 with gr.Column(scale=3):  # Sidebar column
-                    gr.Markdown("## Google Gemma Models")
+                    gr.Markdown(
+                        "## Google Gemma Models: lightweight, state-of-the-art open models from Google"
+                    )
                     task_dropdown = gr.Dropdown(
                         choices=self.task_options,
                         value=self.current_task_name,

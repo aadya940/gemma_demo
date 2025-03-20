@@ -1,4 +1,11 @@
 class PromptManager:
+    """
+    A manager for generating prompts based on different tasks.
+
+    This class provides methods to format user input into prompts suitable for
+    various tasks such as Question Answering, Text Generation, and Code Completion.
+    It raises a ValueError if an unsupported task is specified.
+    """
     def __init__(self, task):
         self.task = task
 
