@@ -40,6 +40,7 @@ class GradioChat:
     def _load_task(self, task_name: str):
         """Loads the task dynamically when switching tasks."""
         return PromptManager(task=task_name)
+    
 
     def _chat(self):
         def chat_fn(message, history, selected_model, selected_task):
@@ -67,26 +68,25 @@ class GradioChat:
             response_stream = self.model.generate_response(prompt)
             yield from response_stream
 
-        # Examples for each task type
-        examples = {
-            "Question Answering": [
-                "What is quantum computing?",
-                "How do neural networks work?",
-                "Explain climate change in simple terms.",
-            ],
-            "Text Generation": [
-                "Once upon a time in a distant galaxy...",
-                "The abandoned house at the end of the street had...",
-                "In the year 2150, humanity discovered...",
-            ],
-            "Code Completion": [
-                "def fibonacci(n):",
-                "class BinarySearchInAList:",
-                "async def fetch_data(url):",
-            ],
-        }
-
-        def update_examples(task):
+        def _get_examples(task):
+            # Examples for each task type
+            examples = {
+                "Question Answering": [
+                    "What is quantum computing?",
+                    "How do neural networks work?",
+                    "Explain climate change in simple terms.",
+                ],
+                "Text Generation": [
+                    "Once upon a time in a distant galaxy...",
+                    "The abandoned house at the end of the street had...",
+                    "In the year 2150, humanity discovered...",
+                ],
+                "Code Completion": [
+                    "def fibonacci(n):",
+                    "class BinarySearchInAList:",
+                    "async def fetch_data(url):",
+                ],
+            }
             return examples.get(task)
 
         with gr.Blocks() as demo:
@@ -126,15 +126,8 @@ class GradioChat:
 
                     gr.Markdown("## Examples")
                     examples_list = gr.Examples(
-                        examples=examples[self.current_task_name],
+                        examples=_get_examples(self.current_task_name),
                         inputs=chat_interface.textbox,
-                    )
-
-                    # Update examples when task changes
-                    task_dropdown.change(
-                        fn=update_examples,
-                        inputs=task_dropdown,
-                        outputs=examples_list,
                     )
 
         demo.launch()
