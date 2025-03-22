@@ -240,33 +240,37 @@ class GradioChat:
                         value=[self.current_model_name],  # Default to current model
                     )
 
-                # Output area for model responses
-                output_area = gr.Row()
+                # Create output textboxes for each model
+                output_textboxes = {}
+                for model_name in self.model_options:
+                    output_textboxes[model_name] = gr.Textbox(
+                        label=model_name, interactive=False
+                    )
+
+                # Button to trigger comparison
+                compare_button = gr.Button("Compare Models")
 
                 def compare_models(user_input, selected_models):
-                    responses = {}
+                    responses = []
                     for model_name in selected_models:
                         model = self._load_model(model_name)  # Load each selected model
                         prompt = self.prompt_manager.get_prompt(user_input=user_input)
                         response = model.generate_response(prompt)
-                        responses[model_name] = response  # Store response by model name
-                    return responses
+                        responses.append(response)  # Store response
+                    return responses  # Return list of responses
 
-                # Button to trigger comparison
-                compare_button = gr.Button("Compare Models")
                 compare_button.click(
                     fn=compare_models,
                     inputs=[user_input, model_comparison_dropdown],
-                    outputs=output_area,
+                    outputs=list(output_textboxes.values()),  # Output to textboxes
                 )
 
                 # Display responses for each model
-                with output_area:
-                    for model_name in self.model_options:
-                        gr.Markdown(f"### Output from {model_name}:")
-                        gr.Textbox(
-                            label=model_name, interactive=False
-                        )  # Placeholder for model output
+                with gr.Row():
+                    for model_name, output_box in output_textboxes.items():
+                        with gr.Column():
+                            gr.Markdown(f"### Output from {model_name}:")
+                            output_box  # Add the output textbox to the layout
 
         demo.launch()
 
