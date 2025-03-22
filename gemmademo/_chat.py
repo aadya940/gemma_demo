@@ -21,8 +21,7 @@ class GradioChat:
         self.current_model_name = "gemma-3b"
         self.current_task_name = "Question Answering"
 
-        # Load model lazily on first use instead of at initialization
-        self.model = None
+        self.model = self._load_model("gemma-3b")
         self.prompt_manager = self._load_task(self.current_task_name)
 
         # Cache.

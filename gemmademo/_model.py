@@ -51,11 +51,11 @@ class LlamaCppGemmaModel:
         self.messages = []
 
         # Model response generation attributes
-        self.max_tokens = (512,)
-        self.temperature = (0.7,)
-        self.top_p = (0.95,)
-        self.top_k = (40,)
-        self.repeat_penalty = (1.1,)
+        self.max_tokens = 512
+        self.temperature = 0.7
+        self.top_p = 0.95
+        self.top_k = 40
+        self.repeat_penalty = 1.1
 
     def load_model(self, n_ctx: int = 2048, n_gpu_layers: int = 0, system_prompt=""):
         """
