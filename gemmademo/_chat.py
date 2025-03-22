@@ -119,13 +119,14 @@ class GradioChat:
                             value=self.current_model_name,
                             label="Select Gemma Model",
                         )
-                        chat_interface = gr.ChatInterface(
-                            chat_fn,
-                            additional_inputs=[model_dropdown, task_dropdown],
-                            textbox=gr.Textbox(
-                                placeholder="Ask me something...", container=False
-                            ),
-                        )
+                
+                chat_interface = gr.ChatInterface(
+                    chat_fn,
+                    additional_inputs=[model_dropdown, task_dropdown],
+                    textbox=gr.Textbox(
+                        placeholder="Ask me something...", container=False
+                    ),
+                )
 
                 with gr.Column(scale=1):
                     gr.Markdown(
