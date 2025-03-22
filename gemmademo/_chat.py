@@ -226,7 +226,47 @@ class GradioChat:
                             )
 
             with gr.Tab("Model Comparision"):
-                pass
+                with gr.Row():
+                    # Input for user query
+                    user_input = gr.Textbox(
+                        placeholder="Enter your query here...", label="User Input"
+                    )
+
+                    # Dropdown for model selection
+                    model_comparison_dropdown = gr.Dropdown(
+                        choices=self.model_options,
+                        label="Select Models",
+                        multiselect=True,  # Allow multiple selections
+                        value=[self.current_model_name],  # Default to current model
+                    )
+
+                # Output area for model responses
+                output_area = gr.Row()
+
+                def compare_models(user_input, selected_models):
+                    responses = {}
+                    for model_name in selected_models:
+                        model = self._load_model(model_name)  # Load each selected model
+                        prompt = self.prompt_manager.get_prompt(user_input=user_input)
+                        response = model.generate_response(prompt)
+                        responses[model_name] = response  # Store response by model name
+                    return responses
+
+                # Button to trigger comparison
+                compare_button = gr.Button("Compare Models")
+                compare_button.click(
+                    fn=compare_models,
+                    inputs=[user_input, model_comparison_dropdown],
+                    outputs=output_area,
+                )
+
+                # Display responses for each model
+                with output_area:
+                    for model_name in self.model_options:
+                        gr.Markdown(f"### Output from {model_name}:")
+                        gr.Textbox(
+                            label=model_name, interactive=False
+                        )  # Placeholder for model output
 
         demo.launch()
 
