@@ -43,8 +43,7 @@ class GradioChat:
     def _load_task(self, task_name: str):
         """Loads the task dynamically when switching tasks."""
         self.current_task_name = task_name
-        self.prompt_manager = PromptManager(task=task_name)
-        return
+        return PromptManager(task=task_name)
 
     def _chat(self):
         def chat_fn(message, history, selected_model, selected_task):
@@ -60,7 +59,7 @@ class GradioChat:
 
             # Reload task if changed
             if selected_task != self.current_task_name:
-                self._load_task(selected_task)
+                self.prompt_manager = self._load_task(selected_task)
                 # Clear message history when task changes
                 if self.model:
                     self.model.messages = []
