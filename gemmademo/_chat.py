@@ -145,11 +145,12 @@ class GradioChat:
                     task_dropdown.change(
                         _update_examples, task_dropdown, examples_list.dataset
                     )
+
                     temperature_slider = gr.Slider(
-                        minimum=0.1, maximum=2, value=1.0, label="Temperature"
+                        minimum=0.1, maximum=2, value=self.model.temperature, label="Temperature"
                     )
                     gr.Markdown(
-                        "**Temperature:** Controls the randomness of the model's output. Lower values make the output more deterministic."
+                        "**Temperature:** Lower values make the output more deterministic."
                     )
                     temperature_slider.change(
                         fn=lambda temp: setattr(self.model, "temperature", temp),
@@ -157,10 +158,10 @@ class GradioChat:
                     )
 
                     top_p_slider = gr.Slider(
-                        minimum=0.1, maximum=1.0, value=0.9, label="Top P"
+                        minimum=0.1, maximum=1.0, value=self.model.top_p, label="Top P"
                     )
                     gr.Markdown(
-                        "**Top P:** Limits the sampling to a subset of the most probable tokens. Lower values make the output more focused."
+                        "**Top P:** Lower values make the output more focused."
                     )
                     top_p_slider.change(
                         fn=lambda top_p: setattr(self.model, "top_p", top_p),
@@ -168,10 +169,10 @@ class GradioChat:
                     )
 
                     top_k_slider = gr.Slider(
-                        minimum=1, maximum=100, value=50, label="Top K"
+                        minimum=1, maximum=100, value=self.model.top_k, label="Top K"
                     )
                     gr.Markdown(
-                        "**Top K:** Limits the sampling to the top K most probable tokens. Lower values make the output more focused."
+                        "**Top K:** Lower values make the output more focused."
                     )
                     top_k_slider.change(
                         fn=lambda top_k: setattr(self.model, "top_k", top_k),
@@ -179,7 +180,7 @@ class GradioChat:
                     )
 
                     repetition_penalty_slider = gr.Slider(
-                        minimum=1.0, maximum=2.0, value=1.0, label="Repetition Penalty"
+                        minimum=1.0, maximum=2.0, value=self.model.repitition_penalty, label="Repetition Penalty"
                     )
                     gr.Markdown(
                         "**Repetition Penalty:** Penalizes repeated tokens to reduce repetition in the output."
@@ -192,10 +193,10 @@ class GradioChat:
                     )
 
                     max_tokens_slider = gr.Slider(
-                        minimum=512, maximum=2048, value=1024, label="Max Tokens"
+                        minimum=512, maximum=2048, value=self.model.max_tokens, label="Max Tokens"
                     )
                     gr.Markdown(
-                        "**Max Tokens:** Sets the maximum number of tokens the model can generate in a single response."
+                        "**Max Tokens:** Sets the maximum number of tokens the model can generate in one response."
                     )
                     max_tokens_slider.change(
                         fn=lambda max_tokens: setattr(
