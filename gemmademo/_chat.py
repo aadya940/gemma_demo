@@ -102,27 +102,30 @@ class GradioChat:
 
         with gr.Blocks() as demo:
             with gr.Row():
-                with gr.Column(scale=3):  # Sidebar column
-                    gr.Markdown(
-                        "## Google Gemma Models: lightweight, state-of-the-art open models from Google"
-                    )
-                    task_dropdown = gr.Dropdown(
-                        choices=self.task_options,
-                        value=self.current_task_name,
-                        label="Select Task",
-                    )
-                    model_dropdown = gr.Dropdown(
-                        choices=self.model_options,
-                        value=self.current_model_name,
-                        label="Select Gemma Model",
-                    )
-                    chat_interface = gr.ChatInterface(
-                        chat_fn,
-                        additional_inputs=[model_dropdown, task_dropdown],
-                        textbox=gr.Textbox(
-                            placeholder="Ask me something...", container=False
-                        ),
-                    )
+                with gr.Accordion(
+                    "Basic Settings ⚙️", open=False
+                ):  # Make the sidebar foldable
+                    with gr.Column(scale=3):  # Sidebar column
+                        gr.Markdown(
+                            "## Google Gemma Models: lightweight, state-of-the-art open models from Google"
+                        )
+                        task_dropdown = gr.Dropdown(
+                            choices=self.task_options,
+                            value=self.current_task_name,
+                            label="Select Task",
+                        )
+                        model_dropdown = gr.Dropdown(
+                            choices=self.model_options,
+                            value=self.current_model_name,
+                            label="Select Gemma Model",
+                        )
+                        chat_interface = gr.ChatInterface(
+                            chat_fn,
+                            additional_inputs=[model_dropdown, task_dropdown],
+                            textbox=gr.Textbox(
+                                placeholder="Ask me something...", container=False
+                            ),
+                        )
 
                 with gr.Column(scale=1):
                     gr.Markdown(
@@ -144,65 +147,80 @@ class GradioChat:
                     task_dropdown.change(
                         _update_examples, task_dropdown, examples_list.dataset
                     )
+                    with gr.Accordion("Model Configuration ⚙️", open=False):
+                        temperature_slider = gr.Slider(
+                            minimum=0.1,
+                            maximum=2,
+                            value=self.model.temperature,
+                            label="Temperature",
+                        )
+                        gr.Markdown(
+                            "**Temperature:** Lower values make the output more deterministic."
+                        )
+                        temperature_slider.change(
+                            fn=lambda temp: setattr(self.model, "temperature", temp),
+                            inputs=temperature_slider,
+                        )
 
-                    temperature_slider = gr.Slider(
-                        minimum=0.1, maximum=2, value=self.model.temperature, label="Temperature"
-                    )
-                    gr.Markdown(
-                        "**Temperature:** Lower values make the output more deterministic."
-                    )
-                    temperature_slider.change(
-                        fn=lambda temp: setattr(self.model, "temperature", temp),
-                        inputs=temperature_slider,
-                    )
+                        top_p_slider = gr.Slider(
+                            minimum=0.1,
+                            maximum=1.0,
+                            value=self.model.top_p,
+                            label="Top P",
+                        )
+                        gr.Markdown(
+                            "**Top P:** Lower values make the output more focused."
+                        )
+                        top_p_slider.change(
+                            fn=lambda top_p: setattr(self.model, "top_p", top_p),
+                            inputs=top_p_slider,
+                        )
 
-                    top_p_slider = gr.Slider(
-                        minimum=0.1, maximum=1.0, value=self.model.top_p, label="Top P"
-                    )
-                    gr.Markdown(
-                        "**Top P:** Lower values make the output more focused."
-                    )
-                    top_p_slider.change(
-                        fn=lambda top_p: setattr(self.model, "top_p", top_p),
-                        inputs=top_p_slider,
-                    )
+                        top_k_slider = gr.Slider(
+                            minimum=1,
+                            maximum=100,
+                            value=self.model.top_k,
+                            label="Top K",
+                        )
+                        gr.Markdown(
+                            "**Top K:** Lower values make the output more focused."
+                        )
+                        top_k_slider.change(
+                            fn=lambda top_k: setattr(self.model, "top_k", top_k),
+                            inputs=top_k_slider,
+                        )
 
-                    top_k_slider = gr.Slider(
-                        minimum=1, maximum=100, value=self.model.top_k, label="Top K"
-                    )
-                    gr.Markdown(
-                        "**Top K:** Lower values make the output more focused."
-                    )
-                    top_k_slider.change(
-                        fn=lambda top_k: setattr(self.model, "top_k", top_k),
-                        inputs=top_k_slider,
-                    )
+                        repetition_penalty_slider = gr.Slider(
+                            minimum=1.0,
+                            maximum=2.0,
+                            value=self.model.repeat_penalty,
+                            label="Repetition Penalty",
+                        )
+                        gr.Markdown(
+                            "**Repetition Penalty:** Penalizes repeated tokens to reduce repetition in the output."
+                        )
+                        repetition_penalty_slider.change(
+                            fn=lambda penalty: setattr(
+                                self.model, "repeat_penalty", penalty
+                            ),
+                            inputs=repetition_penalty_slider,
+                        )
 
-                    repetition_penalty_slider = gr.Slider(
-                        minimum=1.0, maximum=2.0, value=self.model.repeat_penalty, label="Repetition Penalty"
-                    )
-                    gr.Markdown(
-                        "**Repetition Penalty:** Penalizes repeated tokens to reduce repetition in the output."
-                    )
-                    repetition_penalty_slider.change(
-                        fn=lambda penalty: setattr(
-                            self.model, "repeat_penalty", penalty
-                        ),
-                        inputs=repetition_penalty_slider,
-                    )
-
-                    max_tokens_slider = gr.Slider(
-                        minimum=512, maximum=2048, value=self.model.max_tokens, label="Max Tokens"
-                    )
-                    gr.Markdown(
-                        "**Max Tokens:** Sets the maximum number of tokens the model can generate in one response."
-                    )
-                    max_tokens_slider.change(
-                        fn=lambda max_tokens: setattr(
-                            self.model, "max_tokens", max_tokens
-                        ),
-                        inputs=max_tokens_slider,
-                    )
+                        max_tokens_slider = gr.Slider(
+                            minimum=512,
+                            maximum=2048,
+                            value=self.model.max_tokens,
+                            label="Max Tokens",
+                        )
+                        gr.Markdown(
+                            "**Max Tokens:** Sets the maximum number of tokens the model can generate in one response."
+                        )
+                        max_tokens_slider.change(
+                            fn=lambda max_tokens: setattr(
+                                self.model, "max_tokens", max_tokens
+                            ),
+                            inputs=max_tokens_slider,
+                        )
 
         demo.launch()
 
