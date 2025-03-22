@@ -21,11 +21,11 @@ class GradioChat:
         self.current_model_name = "gemma-3b"
         self.current_task_name = "Question Answering"
 
-        self.model = self._load_model("gemma-3b")
-        self.prompt_manager = self._load_task(self.current_task_name)
-
         # Cache.
         self.models_cache = {}
+
+        self.model = self._load_model("gemma-3b")
+        self.prompt_manager = self._load_task(self.current_task_name)
 
     def _load_model(self, model_name: str):
         """Loads the model dynamically when switching models, with caching."""
