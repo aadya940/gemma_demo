@@ -106,19 +106,19 @@ class GradioChat:
                     with gr.Accordion(
                         "Basic Settings ⚙️", open=False
                     ):  # Make the sidebar foldable
-                            gr.Markdown(
-                                "## Google Gemma Models: lightweight, state-of-the-art open models from Google"
-                            )
-                            task_dropdown = gr.Dropdown(
-                                choices=self.task_options,
-                                value=self.current_task_name,
-                                label="Select Task",
-                            )
-                            model_dropdown = gr.Dropdown(
-                                choices=self.model_options,
-                                value=self.current_model_name,
-                                label="Select Gemma Model",
-                            )
+                        gr.Markdown(
+                            "## Google Gemma Models: lightweight, state-of-the-art open models from Google"
+                        )
+                        task_dropdown = gr.Dropdown(
+                            choices=self.task_options,
+                            value=self.current_task_name,
+                            label="Select Task",
+                        )
+                        model_dropdown = gr.Dropdown(
+                            choices=self.model_options,
+                            value=self.current_model_name,
+                            label="Select Gemma Model",
+                        )
                     chat_interface = gr.ChatInterface(
                         chat_fn,
                         additional_inputs=[model_dropdown, task_dropdown],
@@ -132,9 +132,9 @@ class GradioChat:
                         """
                     ## Tips
                     
-                    - First response will be slower (model loading)
-                    - Switching models clears chat history
-                    - Larger models (7B) need more memory but give better results
+                    - First response after model change will be slower (model loading lazily).
+                    - Switching models clears chat history.
+                    - Larger models need more memory but give better results.
                     """
                     )
                     examples_list = gr.Examples(
