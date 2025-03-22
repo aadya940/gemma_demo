@@ -50,7 +50,14 @@ class LlamaCppGemmaModel:
         self.model = None  # Instance of Llama from llama.cpp
         self.messages = []
 
-    def load_model(self, n_ctx: int = 2048, n_gpu_layers: int = 0):
+        # Model response generation attributes
+        self.max_tokens = (512,)
+        self.temperature = (0.7,)
+        self.top_p = (0.95,)
+        self.top_k = (40,)
+        self.repeat_penalty = (1.1,)
+
+    def load_model(self, n_ctx: int = 2048, n_gpu_layers: int = 0, system_prompt=""):
         """
         Load the model. If the model file does not exist, it will be downloaded.
         Uses caching to avoid reloading models unnecessarily.
@@ -94,6 +101,8 @@ class LlamaCppGemmaModel:
 
         _threads = min(2, os.cpu_count() or 1)
 
+        _sys_prompt = {"role": "system", "content": system_prompt}
+
         self.model = Llama(
             model_path=model_path,
             n_threads=_threads,
@@ -102,7 +111,10 @@ class LlamaCppGemmaModel:
             n_gpu_layers=n_gpu_layers,
             n_batch=8,
             verbose=False,
+            chat_format="chatml",
         )
+
+        self.messages.append(_sys_prompt)
 
         # Cache the model for future use
         LlamaCppGemmaModel._model_cache[cache_key] = self.model
@@ -111,11 +123,6 @@ class LlamaCppGemmaModel:
     def generate_response(
         self,
         prompt: str,
-        max_tokens: int = 512,
-        temperature: float = 0.7,
-        top_p: float = 0.95,
-        top_k: int = 40,
-        repeat_penalty: float = 1.1,
     ):
         """
         Generate a response using the llama.cpp model with optimized parameters.
@@ -138,11 +145,11 @@ class LlamaCppGemmaModel:
 
         response_stream = self.model.create_chat_completion(
             messages=self.messages,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            top_p=top_p,
-            top_k=top_k,
-            repeat_penalty=repeat_penalty,
+            max_tokens=self.max_tokens,
+            temperature=self.temperature,
+            top_p=self.top_p,
+            top_k=self.top_k,
+            repeat_penalty=self.repeat_penalty,
             stream=True,
         )
         self.messages.append({"role": "assistant", "content": ""})

@@ -33,13 +33,18 @@ class GradioChat:
         if model_name in self.models_cache:
             return self.models_cache[model_name]
 
-        model = LlamaCppGemmaModel(name=model_name).load_model()
+        model = LlamaCppGemmaModel(name=model_name).load_model(
+            system_prompt=self.prompt_manager.get_system_prompt()
+        )
         self.models_cache[model_name] = model
+        self.current_model_name = model_name
         return model
 
     def _load_task(self, task_name: str):
         """Loads the task dynamically when switching tasks."""
-        return PromptManager(task=task_name)
+        self.current_task_name = task_name
+        self.prompt_manager = PromptManager(task=task_name)
+        return
 
     def _chat(self):
         def chat_fn(message, history, selected_model, selected_task):
@@ -49,18 +54,22 @@ class GradioChat:
 
             # Reload model if changed, using cache when possible
             if selected_model != self.current_model_name:
-                self.current_model_name = selected_model
                 self.model = self._load_model(selected_model)
                 # Clear message history when model changes
                 self.model.messages = []
 
             # Reload task if changed
             if selected_task != self.current_task_name:
-                self.current_task_name = selected_task
-                self.prompt_manager = self._load_task(selected_task)
+                self._load_task(selected_task)
                 # Clear message history when task changes
                 if self.model:
                     self.model.messages = []
+                    self.model.messages = [
+                        {
+                            "role": "system",
+                            "content": self.prompt_manager.get_system_prompt(),
+                        }
+                    ]
 
             # Generate response using updated model & prompt manager
             prompt = self.prompt_manager.get_prompt(user_input=message)
@@ -136,6 +145,64 @@ class GradioChat:
                     )
                     task_dropdown.change(
                         _update_examples, task_dropdown, examples_list.dataset
+                    )
+                    temperature_slider = gr.Slider(
+                        minimum=0.1, maximum=2, value=1.0, label="Temperature"
+                    )
+                    gr.Markdown(
+                        "**Temperature:** Controls the randomness of the model's output. Lower values make the output more deterministic."
+                    )
+                    temperature_slider.change(
+                        fn=lambda temp: setattr(self.model, "temperature", temp),
+                        inputs=temperature_slider,
+                    )
+
+                    top_p_slider = gr.Slider(
+                        minimum=0.1, maximum=1.0, value=0.9, label="Top P"
+                    )
+                    gr.Markdown(
+                        "**Top P:** Limits the sampling to a subset of the most probable tokens. Lower values make the output more focused."
+                    )
+                    top_p_slider.change(
+                        fn=lambda top_p: setattr(self.model, "top_p", top_p),
+                        inputs=top_p_slider,
+                    )
+
+                    top_k_slider = gr.Slider(
+                        minimum=1, maximum=100, value=50, label="Top K"
+                    )
+                    gr.Markdown(
+                        "**Top K:** Limits the sampling to the top K most probable tokens. Lower values make the output more focused."
+                    )
+                    top_k_slider.change(
+                        fn=lambda top_k: setattr(self.model, "top_k", top_k),
+                        inputs=top_k_slider,
+                    )
+
+                    repetition_penalty_slider = gr.Slider(
+                        minimum=1.0, maximum=2.0, value=1.0, label="Repetition Penalty"
+                    )
+                    gr.Markdown(
+                        "**Repetition Penalty:** Penalizes repeated tokens to reduce repetition in the output."
+                    )
+                    repetition_penalty_slider.change(
+                        fn=lambda penalty: setattr(
+                            self.model, "repetition_penalty", penalty
+                        ),
+                        inputs=repetition_penalty_slider,
+                    )
+
+                    max_tokens_slider = gr.Slider(
+                        minimum=512, maximum=2048, value=1024, label="Max Tokens"
+                    )
+                    gr.Markdown(
+                        "**Max Tokens:** Sets the maximum number of tokens the model can generate in a single response."
+                    )
+                    max_tokens_slider.change(
+                        fn=lambda max_tokens: setattr(
+                            self.model, "max_tokens", max_tokens
+                        ),
+                        inputs=max_tokens_slider,
                     )
 
         demo.launch()
