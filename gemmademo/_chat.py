@@ -101,176 +101,128 @@ class GradioChat:
             return gr.Dataset(samples=[[example] for example in examples])
 
         with gr.Blocks() as demo:
-            with gr.Tab("Model Playground"):
-                with gr.Row():
-                    with gr.Column(scale=3):  # Sidebar column
-                        with gr.Accordion(
-                            "Basic Settings ⚙️", open=False
-                        ):  # Make the sidebar foldable
-                            gr.Markdown(
-                                "## Google Gemma Models: lightweight, state-of-the-art open models from Google"
-                            )
-                            task_dropdown = gr.Dropdown(
-                                choices=self.task_options,
-                                value=self.current_task_name,
-                                label="Select Task",
-                            )
-                            model_dropdown = gr.Dropdown(
-                                choices=self.model_options,
-                                value=self.current_model_name,
-                                label="Select Gemma Model",
-                            )
-                        chat_interface = gr.ChatInterface(
-                            chat_fn,
-                            additional_inputs=[model_dropdown, task_dropdown],
-                            textbox=gr.Textbox(
-                                placeholder="Ask me something...", container=False
-                            ),
-                        )
-
-                    with gr.Column(scale=1):
+            with gr.Row():
+                with gr.Column(scale=3):  # Sidebar column
+                    with gr.Accordion(
+                        "Basic Settings ⚙️", open=False
+                    ):  # Make the sidebar foldable
                         gr.Markdown(
-                            """
-                        ## Tips
-                        
-                        - First response after model change will be slower (model loading lazily).
-                        - Switching models clears chat history.
-                        - Larger models need more memory but give better results.
+                            "## Google Gemma Models: lightweight, state-of-the-art open models from Google"
+                        )
+                        task_dropdown = gr.Dropdown(
+                            choices=self.task_options,
+                            value=self.current_task_name,
+                            label="Select Task",
+                        )
+                        model_dropdown = gr.Dropdown(
+                            choices=self.model_options,
+                            value=self.current_model_name,
+                            label="Select Gemma Model",
+                        )
+                    chat_interface = gr.ChatInterface(
+                        chat_fn,
+                        additional_inputs=[model_dropdown, task_dropdown],
+                        textbox=gr.Textbox(
+                            placeholder="Ask me something...", container=False
+                        ),
+                    )
+
+                with gr.Column(scale=1):
+                    gr.Markdown(
                         """
-                        )
-                        examples_list = gr.Examples(
-                            examples=[
-                                [example]
-                                for example in _get_examples(self.current_task_name)
-                            ],
-                            inputs=chat_interface.textbox,
-                        )
-                        task_dropdown.change(
-                            _update_examples, task_dropdown, examples_list.dataset
-                        )
-                        with gr.Accordion("Model Configuration ⚙️", open=False):
-                            temperature_slider = gr.Slider(
-                                minimum=0.1,
-                                maximum=2,
-                                value=self.model.temperature,
-                                label="Temperature",
-                            )
-                            gr.Markdown(
-                                "**Temperature:** Lower values make the output more deterministic."
-                            )
-                            temperature_slider.change(
-                                fn=lambda temp: setattr(
-                                    self.model, "temperature", temp
-                                ),
-                                inputs=temperature_slider,
-                            )
-
-                            top_p_slider = gr.Slider(
-                                minimum=0.1,
-                                maximum=1.0,
-                                value=self.model.top_p,
-                                label="Top P",
-                            )
-                            gr.Markdown(
-                                "**Top P:** Lower values make the output more focused."
-                            )
-                            top_p_slider.change(
-                                fn=lambda top_p: setattr(self.model, "top_p", top_p),
-                                inputs=top_p_slider,
-                            )
-
-                            top_k_slider = gr.Slider(
-                                minimum=1,
-                                maximum=100,
-                                value=self.model.top_k,
-                                label="Top K",
-                            )
-                            gr.Markdown(
-                                "**Top K:** Lower values make the output more focused."
-                            )
-                            top_k_slider.change(
-                                fn=lambda top_k: setattr(self.model, "top_k", top_k),
-                                inputs=top_k_slider,
-                            )
-
-                            repetition_penalty_slider = gr.Slider(
-                                minimum=1.0,
-                                maximum=2.0,
-                                value=self.model.repeat_penalty,
-                                label="Repetition Penalty",
-                            )
-                            gr.Markdown(
-                                "**Repetition Penalty:** Penalizes repeated tokens to reduce repetition in the output."
-                            )
-                            repetition_penalty_slider.change(
-                                fn=lambda penalty: setattr(
-                                    self.model, "repeat_penalty", penalty
-                                ),
-                                inputs=repetition_penalty_slider,
-                            )
-
-                            max_tokens_slider = gr.Slider(
-                                minimum=512,
-                                maximum=2048,
-                                value=self.model.max_tokens,
-                                label="Max Tokens",
-                            )
-                            gr.Markdown(
-                                "**Max Tokens:** Sets the maximum number of tokens the model can generate in one response."
-                            )
-                            max_tokens_slider.change(
-                                fn=lambda max_tokens: setattr(
-                                    self.model, "max_tokens", max_tokens
-                                ),
-                                inputs=max_tokens_slider,
-                            )
-
-            with gr.Tab("Model Comparision"):
-                with gr.Row():
-                    # Input for user query
-                    user_input = gr.Textbox(
-                        placeholder="Enter your query here...", label="User Input"
+                    ## Tips
+                    
+                    - First response after model change will be slower (model loading lazily).
+                    - Switching models clears chat history.
+                    - Larger models need more memory but give better results.
+                    """
                     )
-
-                    # Dropdown for model selection
-                    model_comparison_dropdown = gr.Dropdown(
-                        choices=self.model_options,
-                        label="Select Models",
-                        multiselect=True,  # Allow multiple selections
-                        value=[self.current_model_name],  # Default to current model
+                    examples_list = gr.Examples(
+                        examples=[
+                            [example]
+                            for example in _get_examples(self.current_task_name)
+                        ],
+                        inputs=chat_interface.textbox,
                     )
-
-                # Create output textboxes for each model
-                output_textboxes = {}
-                for model_name in self.model_options:
-                    output_textboxes[model_name] = gr.Textbox(
-                        label=model_name, interactive=False
+                    task_dropdown.change(
+                        _update_examples, task_dropdown, examples_list.dataset
                     )
+                    with gr.Accordion("Model Configuration ⚙️", open=False):
+                        temperature_slider = gr.Slider(
+                            minimum=0.1,
+                            maximum=2,
+                            value=self.model.temperature,
+                            label="Temperature",
+                        )
+                        gr.Markdown(
+                            "**Temperature:** Lower values make the output more deterministic."
+                        )
+                        temperature_slider.change(
+                            fn=lambda temp: setattr(
+                                self.model, "temperature", temp
+                            ),
+                            inputs=temperature_slider,
+                        )
 
-                # Button to trigger comparison
-                compare_button = gr.Button("Compare Models")
+                        top_p_slider = gr.Slider(
+                            minimum=0.1,
+                            maximum=1.0,
+                            value=self.model.top_p,
+                            label="Top P",
+                        )
+                        gr.Markdown(
+                            "**Top P:** Lower values make the output more focused."
+                        )
+                        top_p_slider.change(
+                            fn=lambda top_p: setattr(self.model, "top_p", top_p),
+                            inputs=top_p_slider,
+                        )
 
-                def compare_models(user_input, selected_models):
-                    responses = []
-                    for model_name in selected_models:
-                        model = self._load_model(model_name)  # Load each selected model
-                        prompt = self.prompt_manager.get_prompt(user_input=user_input)
-                        response = model.generate_response(prompt)
-                        responses.append(response)  # Store response
-                    return responses  # Return list of responses
+                        top_k_slider = gr.Slider(
+                            minimum=1,
+                            maximum=100,
+                            value=self.model.top_k,
+                            label="Top K",
+                        )
+                        gr.Markdown(
+                            "**Top K:** Lower values make the output more focused."
+                        )
+                        top_k_slider.change(
+                            fn=lambda top_k: setattr(self.model, "top_k", top_k),
+                            inputs=top_k_slider,
+                        )
 
-                compare_button.click(
-                    fn=compare_models,
-                    inputs=[user_input, model_comparison_dropdown],
-                    outputs=list(output_textboxes.values()),  # Output to textboxes
-                )
+                        repetition_penalty_slider = gr.Slider(
+                            minimum=1.0,
+                            maximum=2.0,
+                            value=self.model.repeat_penalty,
+                            label="Repetition Penalty",
+                        )
+                        gr.Markdown(
+                            "**Repetition Penalty:** Penalizes repeated tokens to reduce repetition in the output."
+                        )
+                        repetition_penalty_slider.change(
+                            fn=lambda penalty: setattr(
+                                self.model, "repeat_penalty", penalty
+                            ),
+                            inputs=repetition_penalty_slider,
+                        )
 
-                # Display responses for each model
-                with gr.Row():
-                    for model_name, output_box in output_textboxes.items():
-                        with gr.Column():
-                            gr.Markdown(f"### Output from {model_name}:")
-                            output_box  # Add the output textbox to the layout
+                        max_tokens_slider = gr.Slider(
+                            minimum=512,
+                            maximum=2048,
+                            value=self.model.max_tokens,
+                            label="Max Tokens",
+                        )
+                        gr.Markdown(
+                            "**Max Tokens:** Sets the maximum number of tokens the model can generate in one response."
+                        )
+                        max_tokens_slider.change(
+                            fn=lambda max_tokens: setattr(
+                                self.model, "max_tokens", max_tokens
+                            ),
+                            inputs=max_tokens_slider,
+                        )
 
         demo.launch()
 
