@@ -111,7 +111,7 @@ class LlamaCppGemmaModel:
             n_gpu_layers=n_gpu_layers,
             n_batch=8,
             verbose=False,
-            chat_format="chatml",
+            chat_format="gemma",
         )
 
         self.messages.append(_sys_prompt)
