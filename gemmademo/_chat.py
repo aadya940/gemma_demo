@@ -179,14 +179,14 @@ class GradioChat:
                     )
 
                     repetition_penalty_slider = gr.Slider(
-                        minimum=1.0, maximum=2.0, value=self.model.repitition_penalty, label="Repetition Penalty"
+                        minimum=1.0, maximum=2.0, value=self.model.repeat_penalty, label="Repetition Penalty"
                     )
                     gr.Markdown(
                         "**Repetition Penalty:** Penalizes repeated tokens to reduce repetition in the output."
                     )
                     repetition_penalty_slider.change(
                         fn=lambda penalty: setattr(
-                            self.model, "repetition_penalty", penalty
+                            self.model, "repeat_penalty", penalty
                         ),
                         inputs=repetition_penalty_slider,
                     )
