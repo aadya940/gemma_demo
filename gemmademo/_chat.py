@@ -102,31 +102,30 @@ class GradioChat:
 
         with gr.Blocks() as demo:
             with gr.Row():
-                with gr.Accordion(
-                    "Basic Settings ⚙️", open=False
-                ):  # Make the sidebar foldable
-                    with gr.Column(scale=3):  # Sidebar column
-                        gr.Markdown(
-                            "## Google Gemma Models: lightweight, state-of-the-art open models from Google"
-                        )
-                        task_dropdown = gr.Dropdown(
-                            choices=self.task_options,
-                            value=self.current_task_name,
-                            label="Select Task",
-                        )
-                        model_dropdown = gr.Dropdown(
-                            choices=self.model_options,
-                            value=self.current_model_name,
-                            label="Select Gemma Model",
-                        )
-                
-                chat_interface = gr.ChatInterface(
-                    chat_fn,
-                    additional_inputs=[model_dropdown, task_dropdown],
-                    textbox=gr.Textbox(
-                        placeholder="Ask me something...", container=False
-                    ),
-                )
+                with gr.Column(scale=3):  # Sidebar column
+                    with gr.Accordion(
+                        "Basic Settings ⚙️", open=False
+                    ):  # Make the sidebar foldable
+                            gr.Markdown(
+                                "## Google Gemma Models: lightweight, state-of-the-art open models from Google"
+                            )
+                            task_dropdown = gr.Dropdown(
+                                choices=self.task_options,
+                                value=self.current_task_name,
+                                label="Select Task",
+                            )
+                            model_dropdown = gr.Dropdown(
+                                choices=self.model_options,
+                                value=self.current_model_name,
+                                label="Select Gemma Model",
+                            )
+                    chat_interface = gr.ChatInterface(
+                        chat_fn,
+                        additional_inputs=[model_dropdown, task_dropdown],
+                        textbox=gr.Textbox(
+                            placeholder="Ask me something...", container=False
+                        ),
+                    )
 
                 with gr.Column(scale=1):
                     gr.Markdown(
