@@ -60,6 +60,7 @@ A simple and friendly chat application powered by Google's Gemma AI models.
 
 - Python 3.12
 - Internet connection for first-time model download
+- Libraries specified in `requirements.txt`.
 
 ## Tips
 
