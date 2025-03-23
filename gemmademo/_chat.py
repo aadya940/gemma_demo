@@ -128,25 +128,27 @@ class GradioChat:
                     )
 
                 with gr.Column(scale=1):
-                    gr.Markdown(
+                    with gr.Accordin("Important Pointers", open=False):
+                        gr.Markdown(
+                            """
+                        ## Pointers
+                        
+                        - First response after model change will be slower (model loading lazily).
+                        - Switching models clears chat history.
+                        - Larger models need more memory but give better results.
                         """
-                    ## Tips
-                    
-                    - First response after model change will be slower (model loading lazily).
-                    - Switching models clears chat history.
-                    - Larger models need more memory but give better results.
-                    """
-                    )
-                    examples_list = gr.Examples(
-                        examples=[
-                            [example]
-                            for example in _get_examples(self.current_task_name)
-                        ],
-                        inputs=chat_interface.textbox,
-                    )
-                    task_dropdown.change(
-                        _update_examples, task_dropdown, examples_list.dataset
-                    )
+                        )
+                        examples_list = gr.Examples(
+                            examples=[
+                                [example]
+                                for example in _get_examples(self.current_task_name)
+                            ],
+                            inputs=chat_interface.textbox,
+                        )
+                        task_dropdown.change(
+                            _update_examples, task_dropdown, examples_list.dataset
+                        )
+
                     with gr.Accordion("Model Configuration ⚙️", open=False):
                         temperature_slider = gr.Slider(
                             minimum=0.1,
