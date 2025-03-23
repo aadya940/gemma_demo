@@ -58,7 +58,7 @@ A simple and friendly chat application powered by Google's Gemma AI models.
 
 ## Requirements
 
-- Python 3.11 or newer 
+- Python 3.12
 - Internet connection for first-time model download
 
 ## Tips
