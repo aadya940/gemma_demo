@@ -128,7 +128,7 @@ class GradioChat:
                     )
 
                 with gr.Column(scale=1):
-                    with gr.Accordin("Important Pointers", open=False):
+                    with gr.Accordion("Important Pointers", open=False):
                         gr.Markdown(
                             """
                         ## Pointers
