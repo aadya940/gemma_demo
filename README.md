@@ -23,6 +23,8 @@ short_description: A friendly chat interface for Google's Gemma models.
 
 A simple and friendly chat application powered by Google's Gemma AI models.
 
+![image](https://github.com/user-attachments/assets/5382bdfd-5f1e-47ca-ac72-0cbc0696ae99)
+
 ## Features
 
 - 💬 Chat with Google's Gemma AI models right on your computer
